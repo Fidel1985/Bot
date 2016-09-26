@@ -11,22 +11,8 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 @EnableScheduling
 public class Application {
 
-    //@Value("${url.main-app}")
-    //private String mainAppBaseURL;
-
     public static void main(String[] args) {
         ApplicationContext ctx = SpringApplication.run(Application.class, args);
     }
-
-/*    @Bean
-    public RestTemplate mainAppCient() {
-        //Settings settings = settings().get();
-        return new RestTemplateBuilder()
-                .rootUri(mainAppBaseURL)
-                //.basicAuthorization(settings.getUserName(), settings.getPassword())
-                .setConnectTimeout(5000)
-                .setReadTimeout(5000)
-                .build();
-    }*/
 
 }
