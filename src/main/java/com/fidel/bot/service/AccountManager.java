@@ -42,13 +42,13 @@ public class AccountManager {
         return api_call(method, hashMap, authData, null);
     }
 
-    private Object api_call(String method, HashMap<String,String> hashMap, Integer authData, String couple){ // api call (Middle level)
+    private Object api_call(String method, HashMap<String,String> hashMap, Integer authData, String pair){ // api call (Middle level)
         if(hashMap == null) {
             hashMap = new HashMap<>();
         }
         String path = "/api/" + method + "/";//generate url
-        if (couple != null) {
-            path = path + couple + "/";
+        if (pair != null) {
+            path = path + pair + "/";
         }
         if (authData == 1) { //add auth-data if needed
             generateNonce();
@@ -104,40 +104,43 @@ public class AccountManager {
         return null;
     }
 
+    public Object ticker(String couple){
+        if(couple == null) couple = "GHS/BTC"; // TODO refactor, check pairs
+        return api_call("ticker", null, 0, couple);
+    }
+
     public Object balance(){
         return api_call("balance", null, 1);
     }
 
-    public Object current_orders(){
-        return current_orders(null);
-    }
-
     public Object current_orders(String couple){
-        if(couple == null) couple = "GHS/BTC";
+        if(couple == null) couple = "GHS/BTC"; // TODO refactor, check pairs
         return api_call("open_orders", null, 1, couple);
     }
 
-    public Object cancel_order(Integer order_id){
+    public Object cancel_order(long order_id){
         HashMap<String, String> hmap = new HashMap<String,String>();
-        hmap.put("id", order_id.toString());
+        hmap.put("id", String.valueOf(order_id));
         return api_call("cancel_order", hmap, 1);
     }
 
-    public Object place_order(String ptype, Double amount,Double price) {
-        return place_order(ptype,amount,price);
-    }
+    public Object place_order(String pairType, double amount, double price, String pair) {
+        if(!pairType.equals("buy") && !pairType.equals("sell")) {
+            return null; // invalid param exception
+        }
+        if(amount < 0 || price < 0) {
+            amount = 0;
+            price = 0;
+        }
+        if(pair == null) {
+            return null;
+        }
 
-    public Object place_order(String ptype, Double amount, Double price, String couple) {
-        if(ptype==null) ptype="buy";
-        if(amount==null || amount < 0) amount = new Double(1);
-        if(price == null || price < 0) price = new Double(1);
-        if(couple == null) couple = "GHS/BTC";
-
-        HashMap<String, String> hmap = new HashMap<>();
-        hmap.put("type", ptype);
-        hmap.put("amount", amount.toString());
-        hmap.put("price", price.toString());
-        return api_call("place_order", hmap, 1, couple);
+        HashMap<String, String> hashMap = new HashMap<>();
+        hashMap.put("type", pairType);
+        hashMap.put("amount", String.valueOf(amount));
+        hashMap.put("price", String.valueOf(price));
+        return api_call("place_order", hashMap, 1, pair);
     }
 
 }

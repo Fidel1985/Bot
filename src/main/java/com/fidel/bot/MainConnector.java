@@ -1,6 +1,6 @@
 package com.fidel.bot;
 
-import com.fidel.bot.jpa.Balance;
+import com.fidel.bot.jpa.*;
 import com.fidel.bot.service.AccountManager;
 import com.fidel.bot.service.Parser;
 import org.slf4j.Logger;
@@ -22,13 +22,16 @@ public class MainConnector {
     @Scheduled(initialDelayString = "${configuration.delay:10}000", fixedDelayString = "${configuration.schedule:1000}000")
     public void checkBalance() {
 
-        Balance balance = jsonParser.parseBalance(accountManager.balance());
-        System.out.println("balance " + balance.toString());
-
-        Object object = accountManager.place_order("buy", 0.7, 11.0, "ETH/USD");
-
-        System.out.println("balance " + balance.toString());
-
+        Object object = accountManager.balance();
+        Balance balance = jsonParser.parseBalance(object);
+        System.out.println(balance);
+        Object object2 = accountManager.place_order("buy", 0.7, 11.0, "ETH/USD");
+        Order order = jsonParser.parseOrder(object2, Type.BUY, Pair.ETHUSD);
+        System.out.println(order);
+        accountManager.cancel_order(order.getId());
+        Object object3 = accountManager.ticker("ETH/USD");
+        Ticker ticker = jsonParser.parseTicker(object3, Pair.ETHUSD);
+        System.out.println(ticker);
     }
 
 }
