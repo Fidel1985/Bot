@@ -1,6 +1,0 @@
-url.main-app: http://localhost:8080/
-
-configuration:
-  updateCheck:
-    delay: 1
-    #schedule: 1
