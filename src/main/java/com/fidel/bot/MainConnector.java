@@ -1,7 +1,10 @@
 package com.fidel.bot;
 
+import java.util.List;
+
 import com.fidel.bot.exception.EmptyResponseException;
 import com.fidel.bot.exception.PlaceOrderException;
+import com.fidel.bot.exception.InvalidSymbolsPairException;
 import com.fidel.bot.jpa.*;
 import com.fidel.bot.service.RequestManager;
 import com.fidel.bot.service.Parser;
@@ -20,7 +23,7 @@ public class MainConnector {
     private Application application;
 
     @Autowired
-    private RequestManager accountManager;
+    private RequestManager requestManager;
 
     @Autowired
     private Parser jsonParser;
@@ -39,32 +42,39 @@ public class MainConnector {
         try {
             Balance balance = obtainBalance();
             System.out.println(balance);
-            Order order = placeOrder(pair, type, lot, price);
+            Order order = placeOrder(type, pair, lot, price);
             System.out.println(order);
+            List<Order> openOrders = obtainOpenOrders(type, pair);
+            System.out.println(openOrders);
             System.out.println("cancel order = " + cancelOrder(order.getId()));
             Ticker ticker = obtainTicker(pair);
             System.out.println(ticker);
 
-        } catch (PlaceOrderException | EmptyResponseException | ParseException e) {
+        } catch (PlaceOrderException | EmptyResponseException | ParseException | InvalidSymbolsPairException e) {
             LOG.error(e.getMessage());
             application.initiateShutdown(1);
         }
     }
 
     private Balance obtainBalance() throws EmptyResponseException, ParseException {
-        return jsonParser.parseBalance(accountManager.balance());
+        return jsonParser.parseBalance(requestManager.balance());
     }
 
-    private Order placeOrder(Pair pair, Type type, double lot, double price) throws EmptyResponseException, PlaceOrderException, ParseException {
-        return jsonParser.parseOrder(accountManager.place_order(type.getValue(), lot, price, pair.getValue()), type, pair);
+    private Order placeOrder(Type type, Pair pair, double lot, double price) throws EmptyResponseException, PlaceOrderException, ParseException {
+        return jsonParser.parseOrder(requestManager.place_order(type.getValue(), lot, price, pair.getValue()), type, pair);
     }
 
     private Boolean cancelOrder(long orderId) throws EmptyResponseException {
-        return (Boolean) accountManager.cancel_order(orderId);
+        return (Boolean) requestManager.cancel_order(orderId);
     }
 
-    private Ticker obtainTicker(Pair pair) throws EmptyResponseException {
-        return jsonParser.parseTicker(accountManager.ticker(pair.getValue()), pair);
+    private Ticker obtainTicker(Pair pair) throws EmptyResponseException, InvalidSymbolsPairException, ParseException {
+        return jsonParser.parseTicker(requestManager.ticker(pair.getValue()), pair);
+    }
+
+    private List<Order> obtainOpenOrders(Type type, Pair pair) throws EmptyResponseException, InvalidSymbolsPairException,
+            ParseException, PlaceOrderException {
+        return jsonParser.parseOpenOrders(requestManager.open_orders(pair.getValue()), type, pair);
     }
 
 }

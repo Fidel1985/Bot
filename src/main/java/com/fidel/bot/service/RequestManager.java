@@ -5,11 +5,14 @@ import javax.crypto.spec.SecretKeySpec;
 import java.io.IOException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.stream.Collectors;
 
 import com.fidel.bot.exception.EmptyResponseException;
+import com.fidel.bot.exception.InvalidSymbolsPairException;
+import com.fidel.bot.jpa.Pair;
 import org.apache.commons.codec.binary.Hex;
 import org.apache.http.Consts;
 import org.apache.http.HttpEntity;
@@ -64,7 +67,6 @@ public class RequestManager {
     private String getSignature() {
         String message = nonce + userID + api_key;
         try {
-            //LOG.info("generating signature");
             Mac sha256_HMAC = Mac.getInstance("HmacSHA256");
             SecretKeySpec secret_key = new SecretKeySpec(secret.getBytes(), "HmacSHA256");
             sha256_HMAC.init(secret_key);
@@ -80,17 +82,12 @@ public class RequestManager {
         HttpPost httppost = new HttpPost(strUrl);
         try {
             HttpClient httpclient = HttpClientBuilder.create().build();
-
             List<NameValuePair> nameValuePairs = hashMap.keySet().stream().
                     map(x->new BasicNameValuePair(x, hashMap.get(x))).collect(Collectors.toList());
-
             httppost.setEntity(new UrlEncodedFormEntity(nameValuePairs, Consts.UTF_8));
-
             HttpResponse response = httpclient.execute(httppost);
             HttpEntity responseEntity = response.getEntity();
-
             String jsonResultString = EntityUtils.toString(responseEntity);
-
             return JSONValue.parse(jsonResultString);
 
         } catch (IOException e) {
@@ -101,8 +98,10 @@ public class RequestManager {
         throw new EmptyResponseException("Fail to obtain response from server");
     }
 
-    public Object ticker(String couple) throws EmptyResponseException {
-        if(couple == null) couple = "GHS/BTC"; // TODO refactor, check pairs
+    public Object ticker(String couple) throws EmptyResponseException, InvalidSymbolsPairException {
+        /*if(!Arrays.stream(Pair.values()).anyMatch(x->x.getValue().equals(couple))) {
+            throw new InvalidSymbolsPairException("There is no such trading pair " + couple);
+        }*/
         return api_call("ticker", null, 0, couple);
     }
 
@@ -110,8 +109,10 @@ public class RequestManager {
         return api_call("balance", null, 1, null);
     }
 
-    public Object current_orders(String couple) throws EmptyResponseException {
-        if(couple == null) couple = "GHS/BTC"; // TODO refactor, check pairs
+    public Object open_orders(String couple) throws EmptyResponseException, InvalidSymbolsPairException {
+        /*if(!Arrays.stream(Pair.values()).anyMatch(x->x.getValue().equals(couple))) {
+            throw new WrongArgumentException("There is no such trading pair " + couple);
+        }*/
         return api_call("open_orders", null, 1, couple);
     }
 
