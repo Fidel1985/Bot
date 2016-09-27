@@ -1,8 +1,8 @@
-package com.fidel.bot.jpa;
+package com.fidel.bot.dto;
 
 import com.google.common.base.MoreObjects;
 
-public class Currency {
+public class CurrencyDTO {
     private String name;
     private String available;
     private String orders;

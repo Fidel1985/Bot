@@ -1,10 +1,10 @@
-package com.fidel.bot.jpa;
+package com.fidel.bot.enumeration;
 
-public enum Type {
+public enum Operation {
     BUY("buy"), SELL("sell");
     private String value;
 
-    Type(String value) {
+    Operation(String value) {
         this.value = value;
     }
 

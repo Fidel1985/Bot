@@ -5,14 +5,12 @@ import javax.crypto.spec.SecretKeySpec;
 import java.io.IOException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.stream.Collectors;
 
 import com.fidel.bot.exception.EmptyResponseException;
 import com.fidel.bot.exception.InvalidSymbolsPairException;
-import com.fidel.bot.jpa.Pair;
 import org.apache.commons.codec.binary.Hex;
 import org.apache.http.Consts;
 import org.apache.http.HttpEntity;
@@ -31,8 +29,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 @Component
-public class RequestManager {
-    private static final Logger LOG = LoggerFactory.getLogger(RequestManager.class);
+public class RequestController {
+    private static final Logger LOG = LoggerFactory.getLogger(RequestController.class);
 
     @Value("${credentials.api_key}")
     private String api_key;

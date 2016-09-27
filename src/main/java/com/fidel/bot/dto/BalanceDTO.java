@@ -1,41 +1,41 @@
-package com.fidel.bot.jpa;
+package com.fidel.bot.dto;
 
 import com.google.common.base.MoreObjects;
 
-public class Balance {
-    private Currency usd;
-    private Currency btc;
-    private Currency eth;
+public class BalanceDTO {
+    private CurrencyDTO usd;
+    private CurrencyDTO btc;
+    private CurrencyDTO eth;
     private long timestamp;
     private String username;
 
-    public Balance() {
-        usd = new Currency();
-        btc = new Currency();
-        eth = new Currency();
+    public BalanceDTO() {
+        usd = new CurrencyDTO();
+        btc = new CurrencyDTO();
+        eth = new CurrencyDTO();
     }
 
-    public Currency getUsd() {
+    public CurrencyDTO getUsd() {
         return usd;
     }
 
-    public void setUsd(Currency usd) {
+    public void setUsd(CurrencyDTO usd) {
         this.usd = usd;
     }
 
-    public Currency getBtc() {
+    public CurrencyDTO getBtc() {
         return btc;
     }
 
-    public void setBtc(Currency btc) {
+    public void setBtc(CurrencyDTO btc) {
         this.btc = btc;
     }
 
-    public Currency getEth() {
+    public CurrencyDTO getEth() {
         return eth;
     }
 
-    public void setEth(Currency eth) {
+    public void setEth(CurrencyDTO eth) {
         this.eth = eth;
     }
 

@@ -1,4 +1,4 @@
-package com.fidel.bot.jpa;
+package com.fidel.bot.enumeration;
 
 public enum Pair {
     BTCUSD("BTC/USD"), ETHUSD("ETH/USD"), ETHBTC("ETH/BTC");

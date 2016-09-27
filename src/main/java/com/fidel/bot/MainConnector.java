@@ -1,13 +1,18 @@
 package com.fidel.bot;
 
 import java.util.List;
+import java.util.Set;
 
+import com.fidel.bot.enumeration.Operation;
+import com.fidel.bot.enumeration.Pair;
 import com.fidel.bot.exception.EmptyResponseException;
 import com.fidel.bot.exception.PlaceOrderException;
 import com.fidel.bot.exception.InvalidSymbolsPairException;
-import com.fidel.bot.jpa.*;
-import com.fidel.bot.service.RequestManager;
-import com.fidel.bot.service.Parser;
+import com.fidel.bot.dto.*;
+import com.fidel.bot.jpa.OrderRepository;
+import com.fidel.bot.service.OrderManager;
+import com.fidel.bot.service.RequestController;
+import com.fidel.bot.service.ParserService;
 import org.json.simple.parser.ParseException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,15 +28,18 @@ public class MainConnector {
     private Application application;
 
     @Autowired
-    private RequestManager requestManager;
+    private RequestController requestController;
 
     @Autowired
-    private Parser jsonParser;
+    private ParserService parserService;
+
+    @Autowired
+    private OrderManager orderManager;
 
     @Scheduled(initialDelayString = "${configuration.delay:10}000", fixedDelayString = "${configuration.schedule:1000}000")
     public void scheduledTask() {
 
-        Type type = Type.BUY;
+        Operation operation = Operation.BUY;
         Pair pair = Pair.ETHUSD;
         double lot = 0.5;
         double price = 11.0;
@@ -40,15 +48,16 @@ public class MainConnector {
         double plannedProfit = 0.02;
 
         try {
-            Balance balance = obtainBalance();
-            System.out.println(balance);
-            Order order = placeOrder(type, pair, lot, price);
-            System.out.println(order);
-            List<Order> openOrders = obtainOpenOrders(type, pair);
-            System.out.println(openOrders);
-            System.out.println("cancel order = " + cancelOrder(order.getId()));
-            Ticker ticker = obtainTicker(pair);
-            System.out.println(ticker);
+            BalanceDTO balanceDTO = obtainBalance();
+            System.out.println(balanceDTO);
+            OrderDTO orderDTO = placeOrder(operation, pair, lot, price);
+            System.out.println(orderDTO);
+            Set<OrderDTO> openOrderDTOs = obtainOpenOrders(operation, pair);
+            orderManager.saveOrders(openOrderDTOs);
+            System.out.println(openOrderDTOs);
+            System.out.println("cancel orderDTO = " + cancelOrder(orderDTO.getId()));
+            TickerDTO tickerDTO = obtainTicker(pair);
+            System.out.println(tickerDTO);
 
         } catch (PlaceOrderException | EmptyResponseException | ParseException | InvalidSymbolsPairException e) {
             LOG.error(e.getMessage());
@@ -56,25 +65,25 @@ public class MainConnector {
         }
     }
 
-    private Balance obtainBalance() throws EmptyResponseException, ParseException {
-        return jsonParser.parseBalance(requestManager.balance());
+    private BalanceDTO obtainBalance() throws EmptyResponseException, ParseException {
+        return parserService.parseBalance(requestController.balance());
     }
 
-    private Order placeOrder(Type type, Pair pair, double lot, double price) throws EmptyResponseException, PlaceOrderException, ParseException {
-        return jsonParser.parseOrder(requestManager.place_order(type.getValue(), lot, price, pair.getValue()), type, pair);
+    private OrderDTO placeOrder(Operation operation, Pair pair, double lot, double price) throws EmptyResponseException, PlaceOrderException, ParseException {
+        return parserService.parseOrder(requestController.place_order(operation.getValue(), lot, price, pair.getValue()), operation, pair);
     }
 
     private Boolean cancelOrder(long orderId) throws EmptyResponseException {
-        return (Boolean) requestManager.cancel_order(orderId);
+        return (Boolean) requestController.cancel_order(orderId);
     }
 
-    private Ticker obtainTicker(Pair pair) throws EmptyResponseException, InvalidSymbolsPairException, ParseException {
-        return jsonParser.parseTicker(requestManager.ticker(pair.getValue()), pair);
+    private TickerDTO obtainTicker(Pair pair) throws EmptyResponseException, InvalidSymbolsPairException, ParseException {
+        return parserService.parseTicker(requestController.ticker(pair.getValue()), pair);
     }
 
-    private List<Order> obtainOpenOrders(Type type, Pair pair) throws EmptyResponseException, InvalidSymbolsPairException,
+    private Set<OrderDTO> obtainOpenOrders(Operation operation, Pair pair) throws EmptyResponseException, InvalidSymbolsPairException,
             ParseException, PlaceOrderException {
-        return jsonParser.parseOpenOrders(requestManager.open_orders(pair.getValue()), type, pair);
+        return parserService.parseOpenOrders(requestController.open_orders(pair.getValue()), operation, pair);
     }
 
 }

@@ -1,16 +1,19 @@
-package com.fidel.bot.jpa;
+package com.fidel.bot.dto;
 
+import com.fidel.bot.enumeration.Operation;
+import com.fidel.bot.enumeration.Pair;
 import com.google.common.base.MoreObjects;
+import com.google.common.base.Objects;
 
-public class Order {
+public class OrderDTO {
+    private long id;
     private Pair pair;
     private double amount;
     private double price;
     private double pending;
-    private long id;
-    private long time;
+    private long createDate;
     private boolean complete;
-    private Type type;
+    private Operation operation;
 
     public Pair getPair() {
         return pair;
@@ -52,12 +55,12 @@ public class Order {
         this.id = id;
     }
 
-    public long getTime() {
-        return time;
+    public long getCreateDate() {
+        return createDate;
     }
 
-    public void setTime(long time) {
-        this.time = time;
+    public void setCreateDate(long createDate) {
+        this.createDate = createDate;
     }
 
     public boolean isComplete() {
@@ -68,12 +71,25 @@ public class Order {
         this.complete = complete;
     }
 
-    public Type getType() {
-        return type;
+    public Operation getOperation() {
+        return operation;
     }
 
-    public void setType(Type type) {
-        this.type = type;
+    public void setOperation(Operation operation) {
+        this.operation = operation;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        OrderDTO orderDTO = (OrderDTO) o;
+        return id == orderDTO.id;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(id);
     }
 
     @Override
@@ -84,9 +100,9 @@ public class Order {
                 .add("price", price)
                 .add("pending", pending)
                 .add("id", id)
-                .add("time", time)
+                .add("createDate", createDate)
                 .add("complete", complete)
-                .add("type", type)
+                .add("operation", operation)
                 .toString();
     }
 }

@@ -1,8 +1,9 @@
-package com.fidel.bot.jpa;
+package com.fidel.bot.dto;
 
+import com.fidel.bot.enumeration.Pair;
 import com.google.common.base.MoreObjects;
 
-public class Ticker {
+public class TickerDTO {
     private Pair pair;
     private String volume;
     private String volume30d;
