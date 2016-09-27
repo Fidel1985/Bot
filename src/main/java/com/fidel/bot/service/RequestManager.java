@@ -9,6 +9,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import com.fidel.bot.exception.EmptyResponseException;
 import org.apache.commons.codec.binary.Hex;
 import org.apache.http.Consts;
 import org.apache.http.HttpEntity;
@@ -27,8 +28,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 @Component
-public class AccountManager {
-    private static final Logger LOG = LoggerFactory.getLogger(AccountManager.class);
+public class RequestManager {
+    private static final Logger LOG = LoggerFactory.getLogger(RequestManager.class);
 
     @Value("${credentials.api_key}")
     private String api_key;
@@ -38,11 +39,7 @@ public class AccountManager {
     private String userID;
     private String nonce;
 
-    private Object api_call(String method, HashMap<String,String> hashMap, Integer authData){ // api call (Middle level)
-        return api_call(method, hashMap, authData, null);
-    }
-
-    private Object api_call(String method, HashMap<String,String> hashMap, Integer authData, String pair){ // api call (Middle level)
+    private Object api_call(String method, HashMap<String,String> hashMap, Integer authData, String pair) throws  EmptyResponseException { // api call (Middle level)
         if(hashMap == null) {
             hashMap = new HashMap<>();
         }
@@ -67,7 +64,7 @@ public class AccountManager {
     private String getSignature() {
         String message = nonce + userID + api_key;
         try {
-            LOG.info("generating signature");
+            //LOG.info("generating signature");
             Mac sha256_HMAC = Mac.getInstance("HmacSHA256");
             SecretKeySpec secret_key = new SecretKeySpec(secret.getBytes(), "HmacSHA256");
             sha256_HMAC.init(secret_key);
@@ -79,7 +76,7 @@ public class AccountManager {
         }
     }
 
-    private Object post(String strUrl, HashMap<String,String> hashMap){//Post Request (Low Level API call)
+    private Object post(String strUrl, HashMap<String,String> hashMap) throws EmptyResponseException {//Post Request (Low Level API call)
         HttpPost httppost = new HttpPost(strUrl);
         try {
             HttpClient httpclient = HttpClientBuilder.create().build();
@@ -101,30 +98,30 @@ public class AccountManager {
         } finally {
             httppost.releaseConnection();
         }
-        return null;
+        throw new EmptyResponseException("Fail to obtain response from server");
     }
 
-    public Object ticker(String couple){
+    public Object ticker(String couple) throws EmptyResponseException {
         if(couple == null) couple = "GHS/BTC"; // TODO refactor, check pairs
         return api_call("ticker", null, 0, couple);
     }
 
-    public Object balance(){
-        return api_call("balance", null, 1);
+    public Object balance() throws EmptyResponseException {
+        return api_call("balance", null, 1, null);
     }
 
-    public Object current_orders(String couple){
+    public Object current_orders(String couple) throws EmptyResponseException {
         if(couple == null) couple = "GHS/BTC"; // TODO refactor, check pairs
         return api_call("open_orders", null, 1, couple);
     }
 
-    public Object cancel_order(long order_id){
+    public Object cancel_order(long order_id) throws EmptyResponseException {
         HashMap<String, String> hmap = new HashMap<String,String>();
         hmap.put("id", String.valueOf(order_id));
-        return api_call("cancel_order", hmap, 1);
+        return api_call("cancel_order", hmap, 1, null);
     }
 
-    public Object place_order(String pairType, double amount, double price, String pair) {
+    public Object place_order(String pairType, double amount, double price, String pair) throws EmptyResponseException {
         if(!pairType.equals("buy") && !pairType.equals("sell")) {
             return null; // invalid param exception
         }

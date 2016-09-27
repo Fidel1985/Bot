@@ -11,8 +11,13 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 @EnableScheduling
 public class Application {
 
+    private static ApplicationContext applicationContext;
+
     public static void main(String[] args) {
-        ApplicationContext ctx = SpringApplication.run(Application.class, args);
+        applicationContext = SpringApplication.run(Application.class, args);
     }
 
+    void initiateShutdown(int returnCode){
+        SpringApplication.exit(applicationContext, () -> returnCode);
+    }
 }
