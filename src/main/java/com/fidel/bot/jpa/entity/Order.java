@@ -3,18 +3,17 @@ package com.fidel.bot.jpa.entity;
 import com.fidel.bot.dto.OrderDTO;
 import com.google.common.base.MoreObjects;
 import com.google.common.base.Objects;
-import org.hibernate.annotations.Type;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
-import java.util.Date;
+import java.sql.Timestamp;
 
 
 @Entity
 @Table(name = "orders")
-public class Orders {
+public class Order {
 
     @Id
     @Column(name = "id", updatable = false)
@@ -36,19 +35,16 @@ public class Orders {
     private double pending;
 
     @Column(name = "create_date")
-    @Type(type = "date")
-    private Date createDate;
+    private Timestamp createDate;
+
+    @Column(name = "done_date")
+    private Timestamp doneDate;
 
     @Column(name = "close_date")
-    @Type(type = "date")
-    private Date closeDate;
+    private Timestamp closeDate;
 
-    @Column(name = "release_date")
-    @Type(type = "date")
-    private Date releaseDate;
-
-    @Column(name = "released")
-    private boolean released;
+    @Column(name = "closed")
+    private boolean closed;
 
     @Column(name = "profit")
     private double profit;
@@ -101,36 +97,36 @@ public class Orders {
         this.pending = pending;
     }
 
-    public Date getCreateDate() {
+    public Timestamp getCreateDate() {
         return createDate;
     }
 
-    public void setCreateDate(Date createDate) {
+    public void setCreateDate(Timestamp createDate) {
         this.createDate = createDate;
     }
 
-    public Date getCloseDate() {
+    public Timestamp getDoneDate() {
+        return doneDate;
+    }
+
+    public void setDoneDate(Timestamp doneDate) {
+        this.doneDate = doneDate;
+    }
+
+    public Timestamp getCloseDate() {
         return closeDate;
     }
 
-    public void setCloseDate(Date closeDate) {
+    public void setCloseDate(Timestamp closeDate) {
         this.closeDate = closeDate;
     }
 
-    public Date getReleaseDate() {
-        return releaseDate;
+    public boolean isClosed() {
+        return closed;
     }
 
-    public void setReleaseDate(Date releaseDate) {
-        this.releaseDate = releaseDate;
-    }
-
-    public boolean isReleased() {
-        return released;
-    }
-
-    public void setReleased(boolean released) {
-        this.released = released;
+    public void setClosed(boolean closed) {
+        this.closed = closed;
     }
 
     public double getProfit() {
@@ -141,17 +137,17 @@ public class Orders {
         this.profit = profit;
     }
 
-    public static Orders from(OrderDTO dto) {
-        Orders orders = new Orders();
+    public static Order from(OrderDTO dto) {
+        Order orders = new Order();
         orders.setId(dto.getId());
         orders.setPair(dto.getPair().toString());
         orders.setOperation(dto.getOperation().toString());
         orders.setAmount(dto.getAmount());
         orders.setPrice(dto.getPrice());
         orders.setPending(dto.getPending());
-        orders.setCreateDate(new Date(dto.getCreateDate()));
-        orders.setCloseDate(new Date());
-        orders.setReleased(false);
+        orders.setCreateDate(dto.getCreateDate());
+        orders.setDoneDate(new Timestamp(System.currentTimeMillis()));
+        orders.setClosed(false);
 
         return orders;
     }
@@ -160,7 +156,7 @@ public class Orders {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        Orders orders = (Orders) o;
+        Order orders = (Order) o;
         return Objects.equal(id, orders.id);
     }
 
@@ -179,9 +175,9 @@ public class Orders {
                 .add("price", price)
                 .add("pending", pending)
                 .add("createDate", createDate)
-                .add("closeDate", closeDate)
-                .add("releaseDate", releaseDate)
-                .add("released", released)
+                .add("closeDate", doneDate)
+                .add("releaseDate", closeDate)
+                .add("released", closed)
                 .add("profit", profit)
                 .toString();
     }

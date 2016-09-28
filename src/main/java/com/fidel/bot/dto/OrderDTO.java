@@ -1,5 +1,7 @@
 package com.fidel.bot.dto;
 
+import java.sql.Timestamp;
+
 import com.fidel.bot.enumeration.Operation;
 import com.fidel.bot.enumeration.Pair;
 import com.google.common.base.MoreObjects;
@@ -11,7 +13,7 @@ public class OrderDTO {
     private double amount;
     private double price;
     private double pending;
-    private long createDate;
+    private Timestamp createDate;
     private boolean complete;
     private Operation operation;
 
@@ -55,11 +57,11 @@ public class OrderDTO {
         this.id = id;
     }
 
-    public long getCreateDate() {
+    public Timestamp getCreateDate() {
         return createDate;
     }
 
-    public void setCreateDate(long createDate) {
+    public void setCreateDate(Timestamp createDate) {
         this.createDate = createDate;
     }
 

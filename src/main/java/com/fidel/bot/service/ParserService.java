@@ -1,10 +1,15 @@
 package com.fidel.bot.service;
 
+import java.sql.Timestamp;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import com.fidel.bot.enumeration.Operation;
 import com.fidel.bot.enumeration.Pair;
+import com.fidel.bot.enumeration.Status;
 import com.fidel.bot.exception.InvalidSymbolsPairException;
 import com.fidel.bot.exception.PlaceOrderException;
 import com.fidel.bot.dto.*;
@@ -29,17 +34,14 @@ public class ParserService {
         balanceDTO.setUsername((String) jsonObject.get("username"));
 
         JSONObject currency = (JSONObject) jsonParser.parse(jsonObject.get("USD").toString());
-        balanceDTO.getUsd().setName("USD");
         balanceDTO.getUsd().setAvailable((String) currency.get("available"));
         balanceDTO.getUsd().setOrders((String) currency.get("orders"));
 
         currency = (JSONObject) jsonParser.parse(jsonObject.get("BTC").toString());
-        balanceDTO.getBtc().setName("BTC");
         balanceDTO.getBtc().setAvailable((String) currency.get("available"));
         balanceDTO.getBtc().setOrders((String) currency.get("orders"));
 
         currency = (JSONObject) jsonParser.parse(jsonObject.get("ETH").toString());
-        balanceDTO.getEth().setName("ETH");
         balanceDTO.getEth().setAvailable((String) currency.get("available"));
         balanceDTO.getEth().setOrders((String) currency.get("orders"));
 
@@ -59,13 +61,20 @@ public class ParserService {
         orderDTO.setPending(Double.parseDouble((String) jsonObject.get("pending")));
         orderDTO.setId(Long.parseLong((String) jsonObject.get("id")));
         try {
-            orderDTO.setCreateDate((Long) jsonObject.get("time"));
+            orderDTO.setCreateDate(new Timestamp((Long) jsonObject.get("time")));
         } catch (ClassCastException e) {
-            orderDTO.setCreateDate(Long.parseLong((String) jsonObject.get("time"))); // parsing open_orders time in String format
+            orderDTO.setCreateDate(new Timestamp(Long.parseLong((String) jsonObject.get("time")))); // parsing open_orders time in String format
         }
         orderDTO.setComplete((Boolean) jsonObject.getOrDefault("complete", false));
         orderDTO.setOperation(operation);
         return orderDTO;
+    }
+
+    public Status parseOrderStatus(Object object) throws ParseException {
+        JSONParser jsonParser = new JSONParser();
+        JSONObject jsonObject = (JSONObject) jsonParser.parse(object.toString());
+        String status = (String) jsonObject.get("status");
+        return Arrays.stream(Status.values()).filter(x->x.getValue().equals(status)).findFirst().orElse(null);
     }
 
     public TickerDTO parseTicker(Object object, Pair pair) throws ParseException, InvalidSymbolsPairException{
@@ -87,9 +96,9 @@ public class ParserService {
         return tickerDTO;
     }
 
-    public Set<OrderDTO> parseOpenOrders(Object object, Operation operation, Pair pair) throws ParseException, InvalidSymbolsPairException, PlaceOrderException {
+    public List<OrderDTO> parseOpenOrders(Object object, Operation operation, Pair pair) throws ParseException, InvalidSymbolsPairException, PlaceOrderException {
         JSONParser jsonParser = new JSONParser();
-        Set<OrderDTO> orders = new HashSet<>();
+        List<OrderDTO> orders = new ArrayList<>();
         try {
             JSONArray jsonArray = (JSONArray) jsonParser.parse(object.toString());
             for(Object o: jsonArray) {

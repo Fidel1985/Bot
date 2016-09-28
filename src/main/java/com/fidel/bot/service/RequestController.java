@@ -97,9 +97,6 @@ public class RequestController {
     }
 
     public Object ticker(String couple) throws EmptyResponseException, InvalidSymbolsPairException {
-        /*if(!Arrays.stream(Pair.values()).anyMatch(x->x.getValue().equals(couple))) {
-            throw new InvalidSymbolsPairException("There is no such trading pair " + couple);
-        }*/
         return api_call("ticker", null, 0, couple);
     }
 
@@ -108,16 +105,25 @@ public class RequestController {
     }
 
     public Object open_orders(String couple) throws EmptyResponseException, InvalidSymbolsPairException {
-        /*if(!Arrays.stream(Pair.values()).anyMatch(x->x.getValue().equals(couple))) {
-            throw new WrongArgumentException("There is no such trading pair " + couple);
-        }*/
         return api_call("open_orders", null, 1, couple);
     }
 
-    public Object cancel_order(long order_id) throws EmptyResponseException {
-        HashMap<String, String> hmap = new HashMap<String,String>();
-        hmap.put("id", String.valueOf(order_id));
-        return api_call("cancel_order", hmap, 1, null);
+    /*public Object archived_orders(String couple) throws EmptyResponseException, InvalidSymbolsPairException {
+        HashMap<String, String> hashMap = new HashMap<>();
+        hashMap.put("limit", String.valueOf(order_id));
+        return api_call("archived_orders", hashMap, 1, couple);
+    }*/
+
+    public Object get_order(long Id) throws EmptyResponseException {
+        HashMap<String, String> hashMap = new HashMap<>();
+        hashMap.put("id", String.valueOf(Id));
+        return api_call("get_order", hashMap, 1, null);
+    }
+
+    public Object cancel_order(long Id) throws EmptyResponseException {
+        HashMap<String, String> hashMap = new HashMap<>();
+        hashMap.put("id", String.valueOf(Id));
+        return api_call("cancel_order", hashMap, 1, null);
     }
 
     public Object place_order(String pairType, double amount, double price, String pair) throws EmptyResponseException {
