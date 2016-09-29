@@ -28,7 +28,7 @@ public class MainConnector {
         Operation operation = Operation.BUY; // on descend
         Pair pair = Pair.ETHUSD;
         double amount = 0.5;
-        double price = 11.0;
+        double price = 13.26000001;
         double step = 0.5;
         int depth = 2;
         double spread = 0.004; // 0.2% for buy and 0.2% for sell
