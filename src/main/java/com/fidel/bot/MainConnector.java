@@ -27,15 +27,16 @@ public class MainConnector {
     public void scheduledTask() {
         Operation operation = Operation.BUY; // on descend
         Pair pair = Pair.ETHUSD;
-        double lot = 0.5;
+        double amount = 0.5;
         double price = 11.0;
         double step = 0.5;
+        int depth = 2;
         double spread = 0.004; // 2% for buy and 2% for sell
         double plannedProfit = 0.02;
 
 
         try {
-            strategyService.staticStrategy(operation, pair, lot, price, step, plannedProfit);
+            strategyService.staticStrategy(operation, pair, amount, price, step, depth, spread, plannedProfit);
         } catch (PlaceOrderException | EmptyResponseException | ParseException | InvalidSymbolsPairException | InterruptedException e) {
             LOG.error(e.getMessage());
             application.initiateShutdown(1);

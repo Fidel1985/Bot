@@ -16,6 +16,8 @@ public class OrderDTO {
     private Timestamp createDate;
     private boolean complete;
     private Operation operation;
+    private double spread;
+    private double profit;
 
     public Pair getPair() {
         return pair;
@@ -81,6 +83,22 @@ public class OrderDTO {
         this.operation = operation;
     }
 
+    public double getSpread() {
+        return spread;
+    }
+
+    public void setSpread(double spread) {
+        this.spread = spread;
+    }
+
+    public double getProfit() {
+        return profit;
+    }
+
+    public void setProfit(double profit) {
+        this.profit = profit;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -97,14 +115,16 @@ public class OrderDTO {
     @Override
     public String toString() {
         return MoreObjects.toStringHelper(this)
+                .add("id", id)
                 .add("pair", pair)
                 .add("amount", amount)
                 .add("price", price)
                 .add("pending", pending)
-                .add("id", id)
                 .add("createDate", createDate)
                 .add("complete", complete)
                 .add("operation", operation)
+                .add("spread", spread)
+                .add("profit", profit)
                 .toString();
     }
 }

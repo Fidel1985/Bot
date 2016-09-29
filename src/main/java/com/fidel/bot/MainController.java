@@ -25,12 +25,12 @@ public class MainController {
 
     @RequestMapping("/")
     public String index() {
-        try {
+/*        try {
             strategyService.staticStrategy(Operation.BUY, Pair.ETHBTC, 0.5, 11, 0.5, 3);
         } catch (PlaceOrderException | EmptyResponseException | ParseException | InvalidSymbolsPairException | InterruptedException e) {
             LOG.error(e.getMessage());
             application.initiateShutdown(1);
-        }
+        }*/
         return "Greetings from Spring Boot!";
     }
 

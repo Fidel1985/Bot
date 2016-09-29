@@ -19,6 +19,9 @@ public class Order {
     @Column(name = "id", updatable = false)
     private Long id;
 
+    @Column(name = "converse_id")
+    private Long converseId;
+
     @Column(name = "pair")
     private String pair;
 
@@ -46,6 +49,9 @@ public class Order {
     @Column(name = "closed")
     private boolean closed;
 
+    @Column(name = "spread")
+    private double spread;
+
     @Column(name = "profit")
     private double profit;
 
@@ -55,6 +61,14 @@ public class Order {
 
     public void setId(Long id) {
         this.id = id;
+    }
+
+    public Long getConverseId() {
+        return converseId;
+    }
+
+    public void setConverseId(Long converseId) {
+        this.converseId = converseId;
     }
 
     public String getPair() {
@@ -129,6 +143,14 @@ public class Order {
         this.closed = closed;
     }
 
+    public double getSpread() {
+        return spread;
+    }
+
+    public void setSpread(double spread) {
+        this.spread = spread;
+    }
+
     public double getProfit() {
         return profit;
     }
@@ -138,26 +160,26 @@ public class Order {
     }
 
     public static Order from(OrderDTO dto) {
-        Order orders = new Order();
-        orders.setId(dto.getId());
-        orders.setPair(dto.getPair().toString());
-        orders.setOperation(dto.getOperation().toString());
-        orders.setAmount(dto.getAmount());
-        orders.setPrice(dto.getPrice());
-        orders.setPending(dto.getPending());
-        orders.setCreateDate(dto.getCreateDate());
-        orders.setDoneDate(new Timestamp(System.currentTimeMillis()));
-        orders.setClosed(false);
-
-        return orders;
+        Order order = new Order();
+        order.setId(dto.getId());
+        order.setPair(dto.getPair().toString());
+        order.setOperation(dto.getOperation().toString());
+        order.setAmount(dto.getAmount());
+        order.setPrice(dto.getPrice());
+        order.setPending(dto.getPending());
+        order.setCreateDate(dto.getCreateDate());
+        order.setClosed(dto.isComplete());
+        order.setSpread(dto.getSpread());
+        order.setProfit(dto.getProfit());
+        return order;
     }
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        Order orders = (Order) o;
-        return Objects.equal(id, orders.id);
+        Order order = (Order) o;
+        return Objects.equal(id, order.id);
     }
 
     @Override
@@ -169,6 +191,7 @@ public class Order {
     public String toString() {
         return MoreObjects.toStringHelper(this)
                 .add("id", id)
+                .add("converse_id", converseId)
                 .add("pair", pair)
                 .add("operation", operation)
                 .add("amount", amount)

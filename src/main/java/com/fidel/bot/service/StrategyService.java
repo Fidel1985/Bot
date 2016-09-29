@@ -1,6 +1,7 @@
 package com.fidel.bot.service;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 import com.fidel.bot.dto.BalanceDTO;
 import com.fidel.bot.dto.OrderDTO;
@@ -11,6 +12,7 @@ import com.fidel.bot.enumeration.Status;
 import com.fidel.bot.exception.EmptyResponseException;
 import com.fidel.bot.exception.InvalidSymbolsPairException;
 import com.fidel.bot.exception.PlaceOrderException;
+import com.fidel.bot.jpa.entity.Order;
 import org.json.simple.parser.ParseException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,42 +33,58 @@ public class StrategyService {
     @Autowired
     private OrderService orderService;
 
-    public void staticStrategy(Operation operation, Pair pair, double lot, double price, double step, double plannedProfit)
+    public void staticStrategy(Operation operation, Pair pair, double amount, Double price, double step, int depth, double spread, double plannedProfit)
             throws PlaceOrderException, EmptyResponseException, ParseException, InvalidSymbolsPairException, InterruptedException {
 
-        //Object object = requestController.get_order(3602496171L);
-        //Status status = parserService.parseOrderStatus(object);
-
-
         TickerDTO tickerDTO = obtainTicker(pair);
-        //LOG.info(tickerDTO.toString());
-        if (price <= tickerDTO.getLast()) {
-            OrderDTO buyOrder = placeOrder(Operation.BUY, pair, lot, price);
-            //LOG.info("Placed " + buyOrder.toString());
-            if (buyOrder.getPrice() >= tickerDTO.getLast()) {
-                if (isOrderDone(buyOrder.getId())) {
-                    orderService.saveOrder(buyOrder);
-                    OrderDTO sellOrder = placeOrder(Operation.SELL, pair, lot, price*(1+plannedProfit));
-                    while(true){
-                        if(isOrderDone(sellOrder.getId())) {
-                            orderService.closeOrder(buyOrder.getId());
-                            break;
-                        }
-                        wait(1000);
-                    }
-
-                }
+        checkBuyOrdersDone(tickerDTO.getLast());
+        //checkSellOrdersDone(tickerDTO.getLast());
+        for(int i = 0; i < depth; i++) {
+            if(isBuyOrderPlacingAllowed(operation, pair, price, tickerDTO.getLast(), step)) {
+                OrderDTO orderDTO = placeOrder(operation, pair, amount, price);
+                orderDTO.setSpread(spread);
+                orderDTO.setProfit(plannedProfit);
+                orderService.saveOrder(orderDTO);
+            } else {
+                LOG.warn("Cannot perform order placing with price {} and step {}", price, step);
             }
+            price = price - step;
         }
-
 
         /*BalanceDTO balanceDTO = obtainBalance();
         System.out.println(balanceDTO);
-        List<OrderDTO> openOrderDTOs = obtainOpenOrders(operation, pair);
-        orderService.saveOrders(openOrderDTOs);
-        System.out.println(openOrderDTOs);
         System.out.println("cancel orderDTO = " + cancelOrder(orderDTO.getId()));*/
 
+    }
+
+    private boolean isBuyOrderPlacingAllowed(Operation operation, Pair pair, double price, double lastPrice, double step) throws EmptyResponseException,
+            InvalidSymbolsPairException, ParseException, PlaceOrderException {
+        List<OrderDTO> openOrders = obtainOpenOrders(operation, pair);
+
+        return !(price > lastPrice || openOrders.stream().
+                anyMatch(x -> (price > (x.getPrice() - 0.95 * step)) && (price < (x.getPrice() + 0.95 * step))));
+    }
+
+    private void checkBuyOrdersDone(double lastPrice) throws EmptyResponseException, ParseException, PlaceOrderException {
+        List<Order> openOrders = orderService.findAll().stream().filter(x -> x.getDoneDate() == null).collect(Collectors.toList());
+        List<Order> doneOrders = openOrders.stream().filter(x -> x.getPrice() >= lastPrice).collect(Collectors.toList());
+        for (Order doneOrder: doneOrders) {
+            if(isOrderDone(doneOrder.getId())) { // server verifying
+                OrderDTO sellOrder = placeOrder(Operation.SELL, Pair.valueOf(doneOrder.getPair()),
+                        doneOrder.getAmount(), doneOrder.getPrice() * (1 + doneOrder.getProfit() + doneOrder.getSpread()));
+                orderService.makeDoneBuyOrder(doneOrder.getId(), sellOrder.getId(), sellOrder.getCreateDate());
+            }
+        }
+    }
+
+    private void checkSellOrdersDone(double lastPrice) throws EmptyResponseException, ParseException {
+        List<Order> openOrders = orderService.findAll().stream().filter(x -> x.getConverseId() != null && !x.isClosed()).collect(Collectors.toList());
+        List<Order> doneOrders = openOrders.stream().filter(x -> (x.getPrice() + x.getProfit() < lastPrice)).collect(Collectors.toList());
+        for (Order doneOrder: doneOrders) {
+            if(isOrderDone(doneOrder.getId())) { // server verifying
+                orderService.makeDoneSellOrder(doneOrder.getId());
+            }
+        }
     }
 
     private boolean isOrderDone(long id) throws EmptyResponseException, ParseException {
@@ -77,8 +95,9 @@ public class StrategyService {
         return parserService.parseBalance(requestController.balance());
     }
 
-    private OrderDTO placeOrder(Operation operation, Pair pair, double lot, double price) throws EmptyResponseException, PlaceOrderException, ParseException {
-        return parserService.parseOrder(requestController.place_order(operation.getValue(), lot, price, pair.getValue()), operation, pair);
+    private OrderDTO placeOrder(Operation operation, Pair pair, double amount, double price)
+            throws EmptyResponseException, PlaceOrderException, ParseException {
+        return parserService.parseOrder(requestController.place_order(operation.getValue(), amount, price, pair.getValue()), operation, pair);
     }
 
     private Boolean cancelOrder(long orderId) throws EmptyResponseException {
