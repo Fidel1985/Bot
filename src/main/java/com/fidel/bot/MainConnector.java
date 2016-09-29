@@ -31,7 +31,7 @@ public class MainConnector {
         double price = 11.0;
         double step = 0.5;
         int depth = 2;
-        double spread = 0.004; // 2% for buy and 2% for sell
+        double spread = 0.004; // 0.2% for buy and 0.2% for sell
         double plannedProfit = 0.02;
 
 

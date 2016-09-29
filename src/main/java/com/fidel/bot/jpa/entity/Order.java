@@ -191,16 +191,17 @@ public class Order {
     public String toString() {
         return MoreObjects.toStringHelper(this)
                 .add("id", id)
-                .add("converse_id", converseId)
+                .add("converseId", converseId)
                 .add("pair", pair)
                 .add("operation", operation)
                 .add("amount", amount)
                 .add("price", price)
                 .add("pending", pending)
                 .add("createDate", createDate)
-                .add("closeDate", doneDate)
-                .add("releaseDate", closeDate)
-                .add("released", closed)
+                .add("doneDate", doneDate)
+                .add("closeDate", closeDate)
+                .add("closed", closed)
+                .add("spread", spread)
                 .add("profit", profit)
                 .toString();
     }
