@@ -34,8 +34,8 @@ public class Order {
     @Column(name = "price")
     private double price;
 
-    @Column(name = "pending")
-    private double pending;
+    @Column(name = "converse_price")
+    private double conversePrice;
 
     @Column(name = "create_date")
     private Timestamp createDate;
@@ -103,12 +103,12 @@ public class Order {
         this.price = price;
     }
 
-    public double getPending() {
-        return pending;
+    public double getConversePrice() {
+        return conversePrice;
     }
 
-    public void setPending(double pending) {
-        this.pending = pending;
+    public void setConversePrice(double conversePrice) {
+        this.conversePrice = conversePrice;
     }
 
     public Timestamp getCreateDate() {
@@ -166,7 +166,6 @@ public class Order {
         order.setOperation(dto.getOperation().toString());
         order.setAmount(dto.getAmount());
         order.setPrice(dto.getPrice());
-        order.setPending(dto.getPending());
         order.setCreateDate(dto.getCreateDate());
         order.setClosed(dto.isComplete());
         order.setSpread(dto.getSpread());
@@ -196,7 +195,7 @@ public class Order {
                 .add("operation", operation)
                 .add("amount", amount)
                 .add("price", price)
-                .add("pending", pending)
+                .add("converse_price", conversePrice)
                 .add("createDate", createDate)
                 .add("doneDate", doneDate)
                 .add("closeDate", closeDate)

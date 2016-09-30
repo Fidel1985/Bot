@@ -30,15 +30,16 @@ public class OrderService {
     }
 
     @Transactional
-    public void makeDoneBuyOrder(long id, long converseId, Timestamp doneDate) {
+    public void makeDoneFirstOrder(long id, long converseId, Timestamp doneDate, double conversePrice) {
         Order order = orderRepository.findOne(id);
         order.setConverseId(converseId);
         order.setDoneDate(doneDate);
+        order.setConversePrice(conversePrice);
         orderRepository.save(order);
     }
 
     @Transactional
-    public void makeDoneSellOrder(long id) {
+    public void makeDoneConverseOrder(long id) {
         Order order = orderRepository.findOne(id);
         order.setClosed(true);
         order.setCloseDate(new Timestamp(System.currentTimeMillis()));

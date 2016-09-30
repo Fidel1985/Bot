@@ -109,6 +109,7 @@ public class ParserService {
             if (jsonObject.get("error") != null) {
                 throw new InvalidSymbolsPairException((String) jsonObject.get("error"));
             }
+            LOG.error("test unknown mistake" + object);
         }
         //Arrays.stream(jsonArray.toArray()).map(x -> parseOrder(x, operation, pair)).collect(Collectors.toList()); TODO find out exception handling
         return orders;

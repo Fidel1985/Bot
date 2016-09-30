@@ -5,11 +5,13 @@ import javax.crypto.spec.SecretKeySpec;
 import java.io.IOException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
+import java.text.MessageFormat;
 import java.util.HashMap;
 import java.util.List;
 import java.util.stream.Collectors;
 
 import com.fidel.bot.exception.EmptyResponseException;
+import com.fidel.bot.exception.InvalidParamsException;
 import com.fidel.bot.exception.InvalidSymbolsPairException;
 import org.apache.commons.codec.binary.Hex;
 import org.apache.http.Consts;
@@ -40,7 +42,8 @@ public class RequestController {
     private String userID;
     private String nonce;
 
-    private Object api_call(String method, HashMap<String,String> hashMap, Integer authData, String pair) throws  EmptyResponseException { // api call (Middle level)
+    private Object api_call(String method, HashMap<String, String> hashMap, boolean authData, String pair) throws
+            EmptyResponseException { // api call (Middle level)
         if(hashMap == null) {
             hashMap = new HashMap<>();
         }
@@ -48,7 +51,7 @@ public class RequestController {
         if (pair != null) {
             path = path + pair + "/";
         }
-        if (authData == 1) { //add auth-data if needed
+        if (authData) { //add auth-data if needed
             generateNonce();
             hashMap.put("key", api_key);
             hashMap.put("signature", getSignature());
@@ -76,7 +79,7 @@ public class RequestController {
         }
     }
 
-    private Object post(String strUrl, HashMap<String,String> hashMap) throws EmptyResponseException {//Post Request (Low Level API call)
+    private Object post(String strUrl, HashMap<String, String> hashMap) throws EmptyResponseException {//Post Request (Low Level API call)
         HttpPost httppost = new HttpPost(strUrl);
         try {
             HttpClient httpclient = HttpClientBuilder.create().build();
@@ -97,15 +100,15 @@ public class RequestController {
     }
 
     public Object ticker(String couple) throws EmptyResponseException, InvalidSymbolsPairException {
-        return api_call("ticker", null, 0, couple);
+        return api_call("ticker", null, false, couple);
     }
 
     public Object balance() throws EmptyResponseException {
-        return api_call("balance", null, 1, null);
+        return api_call("balance", null, true, null);
     }
 
     public Object open_orders(String couple) throws EmptyResponseException, InvalidSymbolsPairException {
-        return api_call("open_orders", null, 1, couple);
+        return api_call("open_orders", null, true, couple);
     }
 
     /*public Object archived_orders(String couple) throws EmptyResponseException, InvalidSymbolsPairException {
@@ -114,35 +117,27 @@ public class RequestController {
         return api_call("archived_orders", hashMap, 1, couple);
     }*/
 
-    public Object get_order(long Id) throws EmptyResponseException {
+    public Object get_order(long id) throws EmptyResponseException {
         HashMap<String, String> hashMap = new HashMap<>();
-        hashMap.put("id", String.valueOf(Id));
-        return api_call("get_order", hashMap, 1, null);
+        hashMap.put("id", String.valueOf(id));
+        return api_call("get_order", hashMap, true, null);
     }
 
     public Object cancel_order(long Id) throws EmptyResponseException {
         HashMap<String, String> hashMap = new HashMap<>();
         hashMap.put("id", String.valueOf(Id));
-        return api_call("cancel_order", hashMap, 1, null);
+        return api_call("cancel_order", hashMap, true, null);
     }
 
-    public Object place_order(String pairType, double amount, double price, String pair) throws EmptyResponseException {
-        if(!pairType.equals("buy") && !pairType.equals("sell")) {
-            return null; // invalid param exception
+    public Object place_order(String pairType, double amount, double price, String pair) throws EmptyResponseException, InvalidParamsException {
+        if((!pairType.equals("buy") && !pairType.equals("sell")) || amount < 0 || price < 0) {
+            throw new InvalidParamsException(String.format("Invalid params exception %s %.8f %.8f %s ", pairType, amount, price, pair));
         }
-        if(amount < 0 || price < 0) {
-            amount = 0;
-            price = 0;
-        }
-        if(pair == null) {
-            return null;
-        }
-
         HashMap<String, String> hashMap = new HashMap<>();
         hashMap.put("type", pairType);
         hashMap.put("amount", String.valueOf(amount));
         hashMap.put("price", String.valueOf(price));
-        return api_call("place_order", hashMap, 1, pair);
+        return api_call("place_order", hashMap, true, pair);
     }
 
 }

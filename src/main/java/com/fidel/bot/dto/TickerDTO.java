@@ -90,14 +90,11 @@ public class TickerDTO {
     public String toString() {
         return MoreObjects.toStringHelper(this)
                 .add("pair", pair)
-                .add("volume", volume)
-                .add("volume30d", volume30d)
-                .add("high", high)
                 .add("last", last)
+                .add("high", high)
                 .add("low", low)
                 .add("ask", ask)
                 .add("bid", bid)
-                .add("timestamp", timestamp)
                 .toString();
     }
 }

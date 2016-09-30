@@ -3,6 +3,7 @@ package com.fidel.bot;
 import com.fidel.bot.enumeration.Operation;
 import com.fidel.bot.enumeration.Pair;
 import com.fidel.bot.exception.EmptyResponseException;
+import com.fidel.bot.exception.InvalidParamsException;
 import com.fidel.bot.exception.PlaceOrderException;
 import com.fidel.bot.exception.InvalidSymbolsPairException;
 import com.fidel.bot.service.StrategyService;
@@ -34,10 +35,23 @@ public class MainConnector {
         double spread = 0.004; // 0.2% for buy and 0.2% for sell
         double plannedProfit = 0.02;
 
+        /*Operation operation = Operation.SELL; // on descend
+        Pair pair = Pair.BTCUSD;
+        double amount = 0.016;
+        double price = 616.0001;
+        double step = 15;
+        int depth = 2;
+        double spread = 0.004; // 0.2% for buy and 0.2% for sell
+        double plannedProfit = 0.02;*/
+
+
 
         try {
             strategyService.staticStrategy(operation, pair, amount, price, step, depth, spread, plannedProfit);
-        } catch (PlaceOrderException | EmptyResponseException | ParseException | InvalidSymbolsPairException | InterruptedException e) {
+        } catch (InvalidParamsException e) {
+            LOG.warn(e.getMessage());
+        }
+        catch (PlaceOrderException | EmptyResponseException | ParseException | InvalidSymbolsPairException | InterruptedException e) {
             LOG.error(e.getMessage());
             application.initiateShutdown(1);
         }
