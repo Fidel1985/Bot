@@ -90,8 +90,16 @@ public class ParserService {
         tickerDTO.setHigh(Double.parseDouble((String) jsonObject.get("high")));
         tickerDTO.setLast(Double.parseDouble((String) jsonObject.get("last")));
         tickerDTO.setLow(Double.parseDouble((String) jsonObject.get("low")));
-        tickerDTO.setAsk((Double) jsonObject.get("ask"));
-        tickerDTO.setBid((Double) jsonObject.get("bid"));
+        try {
+            tickerDTO.setAsk((Double) jsonObject.get("ask")); // failing on long values
+        } catch (ClassCastException e) {
+            tickerDTO.setAsk((Long) jsonObject.get("ask"));
+        }
+        try {
+            tickerDTO.setBid((Double) jsonObject.get("bid")); // failing on long values
+        } catch (ClassCastException e) {
+            tickerDTO.setBid((Long) jsonObject.get("bid"));
+        }
         tickerDTO.setTimestamp(Long.parseLong((String) jsonObject.get("timestamp")));
         return tickerDTO;
     }

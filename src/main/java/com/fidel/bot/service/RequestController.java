@@ -13,6 +13,7 @@ import java.util.stream.Collectors;
 import com.fidel.bot.exception.EmptyResponseException;
 import com.fidel.bot.exception.InvalidParamsException;
 import com.fidel.bot.exception.InvalidSymbolsPairException;
+import com.fidel.bot.exception.PlaceOrderException;
 import org.apache.commons.codec.binary.Hex;
 import org.apache.http.Consts;
 import org.apache.http.HttpEntity;
@@ -129,7 +130,8 @@ public class RequestController {
         return api_call("cancel_order", hashMap, true, null);
     }
 
-    public Object place_order(String pairType, double amount, double price, String pair) throws EmptyResponseException, InvalidParamsException {
+    public Object place_order(String pairType, double amount, double price, String pair)
+            throws PlaceOrderException, InvalidParamsException {
         if((!pairType.equals("buy") && !pairType.equals("sell")) || amount < 0 || price < 0) {
             throw new InvalidParamsException(String.format("Invalid params exception %s %.8f %.8f %s ", pairType, amount, price, pair));
         }
@@ -137,7 +139,11 @@ public class RequestController {
         hashMap.put("type", pairType);
         hashMap.put("amount", String.valueOf(amount));
         hashMap.put("price", String.valueOf(price));
-        return api_call("place_order", hashMap, true, pair);
+        try {
+            return api_call("place_order", hashMap, true, pair);
+        } catch (EmptyResponseException e) {
+            LOG.error("Fail to obtain response while placing an order");
+            throw new PlaceOrderException("Fail to obtain response while placing an order");
+        }
     }
-
 }
