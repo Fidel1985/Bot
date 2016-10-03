@@ -1,9 +1,9 @@
 package com.fidel.bot.service;
 
 import com.fidel.bot.dto.OrderDTO;
+import com.fidel.bot.enumeration.Pair;
 import com.fidel.bot.jpa.OrderRepository;
 import com.fidel.bot.jpa.entity.Order;
-import org.aspectj.weaver.ast.Or;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -55,5 +55,17 @@ public class OrderService {
 
     public List<Order> findAll() {
         return orderRepository.findAll();
+    }
+
+    public List<Order> findByClosedFalseAndPair(Pair pair) {
+        return orderRepository.findByClosedFalseAndPair(pair.toString());
+    }
+
+    public List<Order> findByClosedFalseAndConverseIdNotNull() {
+        return orderRepository.findByClosedFalseAndConverseIdNotNull();
+    }
+
+    public List<Order> findByDoneDateIsNull() {
+        return orderRepository.findByDoneDateNull();
     }
 }
