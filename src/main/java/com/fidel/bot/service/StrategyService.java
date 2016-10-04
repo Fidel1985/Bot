@@ -1,5 +1,7 @@
 package com.fidel.bot.service;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -26,6 +28,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class StrategyService {
     private static final Logger LOG = LoggerFactory.getLogger(StrategyService.class);
+    private static final BigDecimal RANGE_COEFF = new BigDecimal(0.95);
 
     @Autowired
     private RequestController requestController;
@@ -43,8 +46,9 @@ public class StrategyService {
     private Long schedule;
 
     @Async
-    public void staticStrategy(Operation operation, Pair pair, double amount, double price, double step, double spread, double plannedProfit)
-            throws PlaceOrderException, EmptyResponseException, ParseException, InvalidSymbolsPairException, InterruptedException, InvalidParamsException {
+    public void staticStrategy(Operation operation, Pair pair, double amount, BigDecimal step, BigDecimal spread, BigDecimal plannedProfit)
+            throws PlaceOrderException, EmptyResponseException, ParseException, InvalidSymbolsPairException, InterruptedException,
+            InvalidParamsException, java.text.ParseException {
         List<Grid> gridItems = gridService.getGrid(operation, pair);
         while (true) {
             TickerDTO tickerDTO = obtainTicker(pair);
@@ -67,35 +71,36 @@ public class StrategyService {
         }
     }
 
-    private boolean isOrderPlacingAllowed(Operation operation, Pair pair, double price, double lastPrice, double step)
+    private boolean isOrderPlacingAllowed(Operation operation, Pair pair, BigDecimal price, BigDecimal lastPrice, BigDecimal step)
             throws EmptyResponseException, InvalidSymbolsPairException, ParseException, PlaceOrderException {
         List<Order> nonConversedOrders = orderService.findByClosedFalseAndPair(pair);
-        boolean isRangeOccupied = nonConversedOrders.stream().anyMatch(x -> (price > (x.getPrice() - 0.95 * step)) && (price < (x.getPrice() + 0.95 * step)));
+        boolean isRangeOccupied = nonConversedOrders.stream().anyMatch(x -> (price.compareTo(x.getPrice().subtract(RANGE_COEFF.multiply(step))) > 0
+                        && price.compareTo(x.getPrice().add(RANGE_COEFF.multiply(step))) < 0));
         if(operation == Operation.BUY) {
-            return !((price > lastPrice + 0.0001) || isRangeOccupied);
+            return !(price.compareTo(lastPrice) >= 0 || isRangeOccupied);
         } else {
-            return !((price < lastPrice - 0.0001) || isRangeOccupied);
+            return !(price.compareTo(lastPrice) <= 0 || isRangeOccupied);
         }
     }
 
-    private void checkFirstOrdersDone(double lastPrice, Operation operation, Pair pair)
-            throws EmptyResponseException, ParseException, PlaceOrderException, InvalidParamsException {
-        List<Order> openOrders = orderService.findByDoneDateIsNull();
+    private void checkFirstOrdersDone(BigDecimal lastPrice, Operation operation, Pair pair)
+            throws EmptyResponseException, ParseException, PlaceOrderException, InvalidParamsException, java.text.ParseException {
+        List<Order> openOrders = orderService.findByDoneDateIsNullAndPair(pair);
         List<Order> doneOrders;
         if(operation == Operation.BUY) {
-            doneOrders = openOrders.stream().filter(x -> x.getPrice() > lastPrice + 0.0001
-                    && Pair.valueOf(x.getPair()) == pair).collect(Collectors.toList());
+            doneOrders = openOrders.stream().filter(x -> x.getPrice().compareTo(lastPrice) >= 0).collect(Collectors.toList());
         } else {
-            doneOrders = openOrders.stream().filter(x -> x.getPrice() < lastPrice - 0.0001
-                    && Pair.valueOf(x.getPair()) == pair).collect(Collectors.toList());
+            doneOrders = openOrders.stream().filter(x -> x.getPrice().compareTo(lastPrice) <= 0).collect(Collectors.toList());
         }
         for (Order doneOrder : doneOrders) {
             if (isOrderDone(doneOrder.getId())) { // server verifying
-                double conversePrice;
+                BigDecimal conversePrice;
                 if(operation == Operation.BUY) {
-                    conversePrice = Math.floor((doneOrder.getPrice() * (1 + doneOrder.getProfit() + doneOrder.getSpread())) * 10000) / 10000;
+                    conversePrice = (doneOrder.getPrice().
+                            multiply(new BigDecimal(1).add(doneOrder.getProfit().add(doneOrder.getSpread())))).setScale(4, RoundingMode.FLOOR);
                   } else {
-                    conversePrice = Math.floor((doneOrder.getPrice() * (1 - doneOrder.getProfit() - doneOrder.getSpread())) * 10000) / 10000;
+                    conversePrice = (doneOrder.getPrice().
+                            multiply(new BigDecimal(1).subtract(doneOrder.getProfit().subtract(doneOrder.getSpread())))).setScale(4, RoundingMode.FLOOR);
                 }
                 operation = switchOperation(operation);
                 OrderDTO converseOrder = placeOrder(operation, Pair.valueOf(doneOrder.getPair()),
@@ -107,15 +112,13 @@ public class StrategyService {
         }
     }
 
-    private void checkConverseOrdersDone(double lastPrice, Operation operation, Pair pair) throws EmptyResponseException, ParseException {
-        List<Order> openOrders = orderService.findByClosedFalseAndConverseIdNotNull();
+    private void checkConverseOrdersDone(BigDecimal lastPrice, Operation operation, Pair pair) throws EmptyResponseException, ParseException {
+        List<Order> openOrders = orderService.findByClosedFalseAndPairAndConverseIdNotNull(pair);
         List<Order> doneOrders;
         if(operation == Operation.BUY) {
-            doneOrders = openOrders.stream().filter(x -> x.getConversePrice() < lastPrice - 0.0001
-                    && Pair.valueOf(x.getPair()) == pair).collect(Collectors.toList());
+            doneOrders = openOrders.stream().filter(x -> x.getConversePrice().compareTo(lastPrice) <= 0).collect(Collectors.toList());
         } else {
-            doneOrders = openOrders.stream().filter(x -> x.getConversePrice() > lastPrice + 0.0001
-                    && Pair.valueOf(x.getPair()) == pair).collect(Collectors.toList());
+            doneOrders = openOrders.stream().filter(x -> x.getConversePrice().compareTo(lastPrice) >= 0).collect(Collectors.toList());
         }
         for (Order doneOrder : doneOrders) {
             if (isOrderDone(doneOrder.getConverseId())) { // server verifying
@@ -138,8 +141,8 @@ public class StrategyService {
         return parserService.parseBalance(requestController.balance());
     }
 
-    private OrderDTO placeOrder(Operation operation, Pair pair, double amount, double price)
-            throws EmptyResponseException, PlaceOrderException, ParseException, InvalidParamsException {
+    private OrderDTO placeOrder(Operation operation, Pair pair, double amount, BigDecimal price)
+            throws EmptyResponseException, PlaceOrderException, ParseException, InvalidParamsException, java.text.ParseException {
         return parserService.parseOrder(requestController.place_order(operation.getValue(), amount, price, pair.getValue()), operation, pair);
     }
 
@@ -147,12 +150,12 @@ public class StrategyService {
         return (Boolean) requestController.cancel_order(orderId);
     }
 
-    private TickerDTO obtainTicker(Pair pair) throws EmptyResponseException, InvalidSymbolsPairException, ParseException {
+    private TickerDTO obtainTicker(Pair pair) throws EmptyResponseException, InvalidSymbolsPairException, ParseException, java.text.ParseException {
         return parserService.parseTicker(requestController.ticker(pair.getValue()), pair);
     }
 
     private List<OrderDTO> obtainOpenOrders(Operation operation, Pair pair) throws EmptyResponseException,
-            InvalidSymbolsPairException, ParseException, PlaceOrderException {
+            InvalidSymbolsPairException, ParseException, PlaceOrderException, java.text.ParseException {
         return parserService.parseOpenOrders(requestController.open_orders(pair.getValue()), operation, pair);
     }
 }

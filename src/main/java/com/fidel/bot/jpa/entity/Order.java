@@ -8,6 +8,8 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.sql.Timestamp;
 
 
@@ -32,10 +34,10 @@ public class Order {
     private double amount;
 
     @Column(name = "price")
-    private double price;
+    private BigDecimal price;
 
     @Column(name = "converse_price")
-    private double conversePrice;
+    private BigDecimal conversePrice;
 
     @Column(name = "create_date")
     private Timestamp createDate;
@@ -50,10 +52,10 @@ public class Order {
     private boolean closed;
 
     @Column(name = "spread")
-    private double spread;
+    private BigDecimal spread;
 
     @Column(name = "profit")
-    private double profit;
+    private BigDecimal profit;
 
     public Long getId() {
         return id;
@@ -95,19 +97,19 @@ public class Order {
         this.amount = amount;
     }
 
-    public double getPrice() {
+    public BigDecimal getPrice() {
         return price;
     }
 
-    public void setPrice(double price) {
+    public void setPrice(BigDecimal price) {
         this.price = price;
     }
 
-    public double getConversePrice() {
+    public BigDecimal getConversePrice() {
         return conversePrice;
     }
 
-    public void setConversePrice(double conversePrice) {
+    public void setConversePrice(BigDecimal conversePrice) {
         this.conversePrice = conversePrice;
     }
 
@@ -143,19 +145,19 @@ public class Order {
         this.closed = closed;
     }
 
-    public double getSpread() {
+    public BigDecimal getSpread() {
         return spread;
     }
 
-    public void setSpread(double spread) {
+    public void setSpread(BigDecimal spread) {
         this.spread = spread;
     }
 
-    public double getProfit() {
+    public BigDecimal getProfit() {
         return profit;
     }
 
-    public void setProfit(double profit) {
+    public void setProfit(BigDecimal profit) {
         this.profit = profit;
     }
 
@@ -166,10 +168,11 @@ public class Order {
         order.setOperation(dto.getOperation().toString());
         order.setAmount(dto.getAmount());
         order.setPrice(dto.getPrice());
+        //order.setPrice(dto.getPrice().setScale(8, RoundingMode.FLOOR));
         order.setCreateDate(dto.getCreateDate());
         order.setClosed(dto.isComplete());
-        order.setSpread(dto.getSpread());
-        order.setProfit(dto.getProfit());
+        order.setSpread(dto.getSpread().setScale(8, RoundingMode.FLOOR));
+        order.setProfit(dto.getProfit().setScale(8, RoundingMode.FLOOR));
         return order;
     }
 

@@ -3,6 +3,7 @@ package com.fidel.bot.service;
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.text.MessageFormat;
@@ -130,9 +131,9 @@ public class RequestController {
         return api_call("cancel_order", hashMap, true, null);
     }
 
-    public Object place_order(String pairType, double amount, double price, String pair)
+    public Object place_order(String pairType, double amount, BigDecimal price, String pair)
             throws PlaceOrderException, InvalidParamsException {
-        if((!pairType.equals("buy") && !pairType.equals("sell")) || amount < 0 || price < 0) {
+        if((!pairType.equals("buy") && !pairType.equals("sell")) || amount < 0 || price.compareTo(new BigDecimal(0)) < 0) {
             throw new InvalidParamsException(String.format("Invalid params exception %s %.8f %.8f %s ", pairType, amount, price, pair));
         }
         HashMap<String, String> hashMap = new HashMap<>();

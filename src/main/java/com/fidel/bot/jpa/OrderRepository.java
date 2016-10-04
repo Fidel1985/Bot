@@ -8,6 +8,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 public interface OrderRepository extends JpaRepository<Order, Long> {
 
     List<Order> findByClosedFalseAndPair(String pair);
-    List<Order> findByClosedFalseAndConverseIdNotNull();
-    List<Order> findByDoneDateNull();
+    List<Order> findByClosedFalseAndPairAndConverseIdNotNull(String pair);
+    List<Order> findByDoneDateNullAndPair(String pair);
 }

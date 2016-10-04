@@ -1,5 +1,6 @@
 package com.fidel.bot.dto;
 
+import java.math.BigDecimal;
 import java.sql.Timestamp;
 
 import com.fidel.bot.enumeration.Operation;
@@ -11,13 +12,13 @@ public class OrderDTO {
     private long id;
     private Pair pair;
     private double amount;
-    private double price;
+    private BigDecimal price;
     private double pending;
     private Timestamp createDate;
     private boolean complete;
     private Operation operation;
-    private double spread;
-    private double profit;
+    private BigDecimal spread;
+    private BigDecimal profit;
 
     public Pair getPair() {
         return pair;
@@ -35,11 +36,11 @@ public class OrderDTO {
         this.amount = amount;
     }
 
-    public double getPrice() {
+    public BigDecimal getPrice() {
         return price;
     }
 
-    public void setPrice(double price) {
+    public void setPrice(BigDecimal price) {
         this.price = price;
     }
 
@@ -83,19 +84,19 @@ public class OrderDTO {
         this.operation = operation;
     }
 
-    public double getSpread() {
+    public BigDecimal getSpread() {
         return spread;
     }
 
-    public void setSpread(double spread) {
+    public void setSpread(BigDecimal spread) {
         this.spread = spread;
     }
 
-    public double getProfit() {
+    public BigDecimal getProfit() {
         return profit;
     }
 
-    public void setProfit(double profit) {
+    public void setProfit(BigDecimal profit) {
         this.profit = profit;
     }
 
