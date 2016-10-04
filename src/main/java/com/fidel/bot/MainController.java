@@ -2,6 +2,8 @@ package com.fidel.bot;
 
 import javax.validation.Valid;
 
+import java.math.BigDecimal;
+
 import com.fidel.bot.dto.GridDTO;
 import com.fidel.bot.enumeration.Operation;
 import com.fidel.bot.enumeration.Pair;
@@ -48,7 +50,7 @@ public class MainController {
     }
 
     @RequestMapping(value = "/static", method = RequestMethod.POST)
-    public String setStrategy(@ModelAttribute("passwordChangeDTO") @Valid GridDTO gridDTO, BindingResult bindingResult, Model model) {
+    public String setStrategy(@ModelAttribute("gridDTO") @Valid GridDTO gridDTO, BindingResult bindingResult, Model model) {
         if (!model.containsAttribute("gridDTO")) {
             model.addAttribute("gridDTO", new GridDTO());
         }
@@ -70,8 +72,8 @@ public class MainController {
         Operation operation = Operation.SELL; // on ascend
         Pair pair = Pair.BTCUSD;
         double amount = 0.016;
-        double price = 616.0001;
-        double step = 15;
+        BigDecimal price = new BigDecimal(616.0001);
+        BigDecimal step = new BigDecimal(15);
         int depth = 2;
 
         return start(operation, pair, amount, price, step, depth);
@@ -82,25 +84,25 @@ public class MainController {
         Operation operation = Operation.BUY; // on descend
         Pair pair = Pair.ETHUSD;
         double amount = 0.5;
-        double price = 13.26000001;
-        double step = 0.5;
+        BigDecimal price = new BigDecimal(13.26000001);
+        BigDecimal step = new BigDecimal(0.5);
         int depth = 2;
 
         return start(operation, pair, amount, price, step, depth);
     }
 
-    private String start(Operation operation, Pair pair, double amount, double price, double step,int depth) {
-        double spread = 0.004; // 0.2% for buy and 0.2% for sell
-        double plannedProfit = 0.02;
+    private String start(Operation operation, Pair pair, double amount, BigDecimal price, BigDecimal step, int depth) {
+        BigDecimal spread = new BigDecimal(0.004); // 0.2% for buy and 0.2% for sell
+        BigDecimal plannedProfit = new BigDecimal(0.02);
 
         gridService.createGrid(operation, pair, amount, price, step, depth);
 
         try {
-            strategyService.staticStrategy(operation, pair, amount, price, step, spread, plannedProfit);
+            strategyService.staticStrategy(operation, pair, amount, step, spread, plannedProfit);
         } catch (InvalidParamsException | EmptyResponseException | InvalidSymbolsPairException e) {
             LOG.warn(e.getMessage());
         }
-        catch (PlaceOrderException | ParseException | InterruptedException e) {
+        catch (PlaceOrderException | ParseException | InterruptedException | java.text.ParseException e) {
             LOG.error(e.getMessage());
             application.initiateShutdown(1);
         }

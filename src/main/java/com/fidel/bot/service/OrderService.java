@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.sql.Timestamp;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -30,7 +31,7 @@ public class OrderService {
     }
 
     @Transactional
-    public void makeDoneFirstOrder(long id, long converseId, Timestamp doneDate, double conversePrice) {
+    public void makeDoneFirstOrder(long id, long converseId, Timestamp doneDate, BigDecimal conversePrice) {
         Order order = orderRepository.findOne(id);
         order.setConverseId(converseId);
         order.setDoneDate(doneDate);

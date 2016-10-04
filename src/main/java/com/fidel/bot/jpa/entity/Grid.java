@@ -7,6 +7,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
+import java.math.BigDecimal;
 import java.sql.Timestamp;
 
 import com.google.common.base.MoreObjects;
@@ -34,7 +35,7 @@ public class Grid {
     private double amount;
 
     @Column(name = "price")
-    private double price;
+    private BigDecimal price;
 
     @Column(name = "create_date")
     private Timestamp createDate;
@@ -71,11 +72,11 @@ public class Grid {
         this.amount = amount;
     }
 
-    public double getPrice() {
+    public BigDecimal getPrice() {
         return price;
     }
 
-    public void setPrice(double price) {
+    public void setPrice(BigDecimal price) {
         this.price = price;
     }
 

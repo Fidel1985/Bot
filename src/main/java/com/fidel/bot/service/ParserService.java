@@ -1,6 +1,9 @@
 package com.fidel.bot.service;
 
+import java.math.BigDecimal;
 import java.sql.Timestamp;
+import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -48,7 +51,7 @@ public class ParserService {
         return balanceDTO;
     }
 
-    public OrderDTO parseOrder(Object object, Operation operation, Pair pair) throws ParseException, PlaceOrderException {
+    public OrderDTO parseOrder(Object object, Operation operation, Pair pair) throws ParseException, PlaceOrderException, java.text.ParseException {
         JSONParser jsonParser = new JSONParser();
         JSONObject jsonObject = (JSONObject) jsonParser.parse(object.toString());
         if (jsonObject.get("error") != null) {
@@ -57,7 +60,7 @@ public class ParserService {
         OrderDTO orderDTO = new OrderDTO();
         orderDTO.setPair(pair);
         orderDTO.setAmount(Double.parseDouble((String) jsonObject.get("amount")));
-        orderDTO.setPrice(Double.parseDouble((String) jsonObject.get("price")));
+        orderDTO.setPrice(parseBigDecimal((String) jsonObject.get("price")));
         orderDTO.setPending(Double.parseDouble((String) jsonObject.get("pending")));
         orderDTO.setId(Long.parseLong((String) jsonObject.get("id")));
         try {
@@ -77,7 +80,7 @@ public class ParserService {
         return Arrays.stream(Status.values()).filter(x->x.getValue().equals(status)).findFirst().orElse(null);
     }
 
-    public TickerDTO parseTicker(Object object, Pair pair) throws ParseException, InvalidSymbolsPairException{
+    public TickerDTO parseTicker(Object object, Pair pair) throws ParseException, InvalidSymbolsPairException, java.text.ParseException {
         JSONParser jsonParser = new JSONParser();
         JSONObject jsonObject = (JSONObject) jsonParser.parse(object.toString());
         if (jsonObject.get("error") != null) {
@@ -88,7 +91,7 @@ public class ParserService {
         tickerDTO.setVolume((String) jsonObject.get("volume"));
         tickerDTO.setVolume30d((String) jsonObject.get("volume30d"));
         tickerDTO.setHigh(Double.parseDouble((String) jsonObject.get("high")));
-        tickerDTO.setLast(Double.parseDouble((String) jsonObject.get("last")));
+        tickerDTO.setLast(parseBigDecimal((String) jsonObject.get("last")));
         tickerDTO.setLow(Double.parseDouble((String) jsonObject.get("low")));
         try {
             tickerDTO.setAsk((Double) jsonObject.get("ask")); // failing on long values
@@ -104,7 +107,8 @@ public class ParserService {
         return tickerDTO;
     }
 
-    public List<OrderDTO> parseOpenOrders(Object object, Operation operation, Pair pair) throws ParseException, InvalidSymbolsPairException, PlaceOrderException {
+    public List<OrderDTO> parseOpenOrders(Object object, Operation operation, Pair pair)
+            throws ParseException, InvalidSymbolsPairException, PlaceOrderException, java.text.ParseException {
         JSONParser jsonParser = new JSONParser();
         List<OrderDTO> orders = new ArrayList<>();
         try {
@@ -121,5 +125,16 @@ public class ParserService {
         }
         //Arrays.stream(jsonArray.toArray()).map(x -> parseOrder(x, operation, pair)).collect(Collectors.toList()); TODO find out exception handling
         return orders;
+    }
+
+    private BigDecimal parseBigDecimal(String string) throws java.text.ParseException {
+        DecimalFormatSymbols symbols = new DecimalFormatSymbols();
+        symbols.setGroupingSeparator(',');
+        symbols.setDecimalSeparator('.');
+        String pattern = "#,##0.0#";
+        DecimalFormat decimalFormat = new DecimalFormat(pattern, symbols);
+        decimalFormat.setParseBigDecimal(true);
+
+        return  (BigDecimal) decimalFormat.parse(string);
     }
 }

@@ -1,5 +1,7 @@
 package com.fidel.bot.dto;
 
+import java.math.BigDecimal;
+
 import com.fidel.bot.enumeration.Pair;
 import com.google.common.base.MoreObjects;
 
@@ -8,7 +10,7 @@ public class TickerDTO {
     private String volume;
     private String volume30d;
     private double high;
-    private double last;
+    private BigDecimal last;
     private double low;
     private double ask;
     private double bid;
@@ -46,11 +48,11 @@ public class TickerDTO {
         this.high = high;
     }
 
-    public double getLast() {
+    public BigDecimal getLast() {
         return last;
     }
 
-    public void setLast(double last) {
+    public void setLast(BigDecimal last) {
         this.last = last;
     }
 

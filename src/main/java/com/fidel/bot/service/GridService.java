@@ -1,5 +1,6 @@
 package com.fidel.bot.service;
 
+import java.math.BigDecimal;
 import java.sql.Timestamp;
 import java.util.List;
 
@@ -18,20 +19,20 @@ public class GridService {
     private GridRepository gridRepository;
 
     @Transactional
-    public void createGrid(Operation operation, Pair pair, double amount, double price, double step, int depth) {
+    public void createGrid(Operation operation, Pair pair, double amount, BigDecimal price, BigDecimal step, int depth) {
         deleteGrid(operation, pair);
         for (int i = 0; i < depth; i++) {
             Grid gridItem = new Grid();
             gridItem.setPair(pair.toString());
             gridItem.setOperation(operation.toString());
             gridItem.setAmount(amount);
-            gridItem.setPrice(price);
+            gridItem.setPrice(price.setScale(8, BigDecimal.ROUND_FLOOR));
             gridItem.setCreateDate(new Timestamp(System.currentTimeMillis()));
             gridRepository.save(gridItem);
             if (operation == Operation.BUY) {
-                price -= step;
+                price = price.subtract(step);
             } else {
-                price += step;
+                price = price.add(step);
             }
         }
     }
