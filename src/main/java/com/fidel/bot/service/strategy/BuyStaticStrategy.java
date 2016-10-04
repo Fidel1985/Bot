@@ -8,9 +8,11 @@ import com.fidel.bot.jpa.entity.Order;
 
 public class BuyStaticStrategy extends AbstractStaticStrategy {
 
-    public BuyStaticStrategy(Pair pair, BigDecimal step) {
+    public BuyStaticStrategy(Pair pair, BigDecimal step, BigDecimal spread, BigDecimal plannedProfit) {
         this.pair = pair;
         this.step = step;
+        this.spread = spread;
+        this.plannedProfit = plannedProfit;
     }
 
     @Override
@@ -19,12 +21,17 @@ public class BuyStaticStrategy extends AbstractStaticStrategy {
     }
 
     @Override
-    public BigDecimal getMultiplier(Order doneOrder) {
-        return doneOrder.getPrice().multiply(new BigDecimal(1).add(doneOrder.getProfit().add(doneOrder.getSpread())));
+    public BigDecimal getMultiplier(Order order) {
+        return order.getPrice().multiply(new BigDecimal(1).add(order.getProfit().add(order.getSpread())));
     }
 
     @Override
     public Operation getOperation(){
+        return Operation.BUY;
+    }
+
+    @Override
+    public Operation getReverseOperation(){
         return Operation.SELL;
     }
 }

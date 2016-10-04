@@ -31,55 +31,33 @@ import org.springframework.stereotype.Component;
 @Component
 public class StrategyService {
     private static final Logger LOG = LoggerFactory.getLogger(StrategyService.class);
-    private static final BigDecimal RANGE_COEFF = new BigDecimal(0.95);
 
     @Autowired
     private
     ParsedOrderService parsedOrderService;
 
-    @Autowired
-    private GridService gridService;
-
-    @Autowired
-    private OrderService orderService;
-
     @Value("${configuration.schedule}")
     private Long schedule;
 
     @Async
-    public void staticStrategy(Operation operation, Pair pair, double amount, BigDecimal step, BigDecimal spread, BigDecimal plannedProfit)
+    public void staticStrategy(Operation operation, Pair pair, BigDecimal step, BigDecimal spread, BigDecimal plannedProfit)
             throws PlaceOrderException, EmptyResponseException, ParseException, InvalidSymbolsPairException, InterruptedException,
             InvalidParamsException, java.text.ParseException {
-        List<Grid> gridItems = gridService.getGrid(operation, pair);
+
         AbstractStaticStrategy strategy;
         if(operation == Operation.BUY) {
-            strategy = new BuyStaticStrategy(pair, step);
+            strategy = new BuyStaticStrategy(pair, step, spread, plannedProfit);
         } else {
-            strategy = new SellStaticStrategy(pair, step);
+            strategy = new SellStaticStrategy(pair, step, spread, plannedProfit);
         }
 
         while (true) {
             TickerDTO tickerDTO = parsedOrderService.obtainTicker(pair);
             LOG.info("{}", tickerDTO);
+            strategy.createOrderGrid();
             strategy.setLastPrice(tickerDTO.getLast());
             strategy.checkFirstOrdersDone();
             strategy.checkConverseOrdersDone();
-
-
-            
-            for (Grid item : gridItems) {
-                strategy.setPrice(item.getPrice());
-                if (strategy.isOrderPlacingAllowed()) {
-                    OrderDTO orderDTO = parsedOrderService.placeOrder(operation, pair, amount, item.getPrice());
-                    orderDTO.setSpread(spread);
-                    orderDTO.setProfit(plannedProfit);
-                    LOG.info("placed {}", orderDTO);
-                    orderService.saveOrder(orderDTO);
-                    LOG.info("{}", parsedOrderService.obtainBalance());
-                } else {
-                    LOG.debug("Cannot perform order placing with price {} and step {}", item.getPrice(), step);
-                }
-            }
             Thread.sleep(schedule);
         }
     }

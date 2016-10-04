@@ -66,7 +66,7 @@ public class OrderService {
         return orderRepository.findByClosedFalseAndPairAndConverseIdNotNull(pair.toString());
     }
 
-    public List<Order> findByDoneDateIsNullAndPair(Pair pair) {
+    public List<Order> findByDoneDateNullAndPair(Pair pair) {
         return orderRepository.findByDoneDateNullAndPair(pair.toString());
     }
 }
