@@ -6,7 +6,6 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
-import java.text.MessageFormat;
 import java.util.HashMap;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -33,8 +32,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 @Component
-public class RequestController {
-    private static final Logger LOG = LoggerFactory.getLogger(RequestController.class);
+public class RequestService {
+    private static final Logger LOG = LoggerFactory.getLogger(RequestService.class);
 
     @Value("${credentials.api_key}")
     private String api_key;

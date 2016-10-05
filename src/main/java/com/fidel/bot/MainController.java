@@ -98,7 +98,7 @@ public class MainController {
         gridService.createGrid(operation, pair, amount, price, step, depth);
 
         try {
-            strategyService.staticStrategy(operation, pair, amount, step, spread, plannedProfit);
+            strategyService.staticStrategy(operation, pair, step, spread, plannedProfit);
         } catch (InvalidParamsException | EmptyResponseException | InvalidSymbolsPairException e) {
             LOG.warn(e.getMessage());
         }

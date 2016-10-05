@@ -91,7 +91,7 @@ public class TickerDTO {
     @Override
     public String toString() {
         return MoreObjects.toStringHelper(this)
-                .add("pair", pair)
+                .add("pair", pair.getValue())
                 .add("last", last)
                 .add("high", high)
                 .add("low", low)

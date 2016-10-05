@@ -26,7 +26,7 @@ public class GridService {
             gridItem.setPair(pair.toString());
             gridItem.setOperation(operation.toString());
             gridItem.setAmount(amount);
-            gridItem.setPrice(price.setScale(8, BigDecimal.ROUND_FLOOR));
+            gridItem.setPrice(price.setScale(8, BigDecimal.ROUND_HALF_UP));
             gridItem.setCreateDate(new Timestamp(System.currentTimeMillis()));
             gridRepository.save(gridItem);
             if (operation == Operation.BUY) {

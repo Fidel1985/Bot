@@ -62,11 +62,11 @@ public class OrderService {
         return orderRepository.findByClosedFalseAndPair(pair.toString());
     }
 
-    public List<Order> findByClosedFalseAndConverseIdNotNull() {
-        return orderRepository.findByClosedFalseAndConverseIdNotNull();
+    public List<Order> findByClosedFalseAndPairAndConverseIdNotNull(Pair pair) {
+        return orderRepository.findByClosedFalseAndPairAndConverseIdNotNull(pair.toString());
     }
 
-    public List<Order> findByDoneDateIsNull() {
-        return orderRepository.findByDoneDateNull();
+    public List<Order> findByDoneDateNullAndPair(Pair pair) {
+        return orderRepository.findByDoneDateNullAndPair(pair.toString());
     }
 }
