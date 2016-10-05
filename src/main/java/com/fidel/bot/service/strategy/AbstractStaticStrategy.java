@@ -21,16 +21,15 @@ import org.json.simple.parser.ParseException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
 public abstract class AbstractStaticStrategy {
     private static final Logger LOG = LoggerFactory.getLogger(AbstractStaticStrategy.class);
     private static final BigDecimal RANGE_COEFF = new BigDecimal(0.95);
-    protected Pair pair;
+    private Pair pair;
+    private BigDecimal step;
+    private BigDecimal spread;
+    private BigDecimal plannedProfit;
     protected BigDecimal lastPrice;
-    protected BigDecimal step;
-    protected BigDecimal spread;
-    protected BigDecimal plannedProfit;
 
     @Autowired
     private ParsedOrderService parsedOrderService;
@@ -41,10 +40,17 @@ public abstract class AbstractStaticStrategy {
     @Autowired
     private GridService gridService;
 
-    public abstract boolean priceCorrectSide(BigDecimal price, BigDecimal lastPrice);
+    public abstract boolean priceRelativelyLastPrice(BigDecimal price);
     public abstract BigDecimal getMultiplier(Order order);
     public abstract Operation getOperation();
     public abstract Operation getReverseOperation();
+
+    public void initFields(Pair pair, BigDecimal step, BigDecimal spread, BigDecimal plannedProfit) {
+        this.pair = pair;
+        this.step = step;
+        this.spread = spread;
+        this.plannedProfit = plannedProfit;
+    }
 
     public void createOrderGrid() throws EmptyResponseException, InvalidSymbolsPairException,
             ParseException, PlaceOrderException, InvalidParamsException, java.text.ParseException {
@@ -66,7 +72,7 @@ public abstract class AbstractStaticStrategy {
     public void checkFirstOrdersDone() throws EmptyResponseException, ParseException, PlaceOrderException,
             InvalidParamsException, java.text.ParseException {
         List<Order> openOrders = orderService.findByDoneDateNullAndPair(pair);
-        List<Order> doneOrders = openOrders.stream().filter(x -> priceCorrectSide(x.getPrice(), lastPrice)).collect(Collectors.toList());
+        List<Order> doneOrders = openOrders.stream().filter(x -> !priceRelativelyLastPrice(x.getPrice())).collect(Collectors.toList());
 
         for (Order doneOrder : doneOrders) {
             if (parsedOrderService.isOrderDone(doneOrder.getId())) { // server verifying
@@ -82,7 +88,7 @@ public abstract class AbstractStaticStrategy {
 
     public void checkConverseOrdersDone() throws EmptyResponseException, ParseException {
         List<Order> openOrders = orderService.findByClosedFalseAndPairAndConverseIdNotNull(pair);
-        List<Order> doneOrders = openOrders.stream().filter(x -> priceCorrectSide(x.getConversePrice(), lastPrice)).collect(Collectors.toList());
+        List<Order> doneOrders = openOrders.stream().filter(x -> priceRelativelyLastPrice(x.getConversePrice())).collect(Collectors.toList());
         for (Order doneOrder : doneOrders) {
             if (parsedOrderService.isOrderDone(doneOrder.getConverseId())) { // server verifying
                 orderService.makeDoneConverseOrder(doneOrder.getId());
@@ -97,7 +103,7 @@ public abstract class AbstractStaticStrategy {
         boolean isRangeOccupied = nonConversedOrders.stream().anyMatch(x ->
                 (price.compareTo(x.getPrice().subtract(RANGE_COEFF.multiply(step))) > 0
                 && price.compareTo(x.getPrice().add(RANGE_COEFF.multiply(step))) < 0));
-        return priceCorrectSide(price, lastPrice) && !isRangeOccupied;
+        return priceRelativelyLastPrice(price) && !isRangeOccupied;
     }
 
     public BigDecimal getLastPrice() {

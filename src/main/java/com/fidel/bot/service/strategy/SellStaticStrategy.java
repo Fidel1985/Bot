@@ -3,20 +3,14 @@ package com.fidel.bot.service.strategy;
 import java.math.BigDecimal;
 
 import com.fidel.bot.enumeration.Operation;
-import com.fidel.bot.enumeration.Pair;
 import com.fidel.bot.jpa.entity.Order;
+import org.springframework.stereotype.Component;
 
+@Component
 public class SellStaticStrategy extends AbstractStaticStrategy {
 
-    public SellStaticStrategy(Pair pair, BigDecimal step, BigDecimal spread, BigDecimal plannedProfit) {
-        this.pair = pair;
-        this.step = step;
-        this.spread = spread;
-        this.plannedProfit = plannedProfit;
-    }
-
     @Override
-    public boolean priceCorrectSide(BigDecimal price, BigDecimal lastPrice) {
+    public boolean priceRelativelyLastPrice(BigDecimal price) {
         return price.compareTo(lastPrice) >= 0;
     }
 

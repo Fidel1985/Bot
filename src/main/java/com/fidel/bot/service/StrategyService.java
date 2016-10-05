@@ -33,8 +33,13 @@ public class StrategyService {
     private static final Logger LOG = LoggerFactory.getLogger(StrategyService.class);
 
     @Autowired
-    private
-    ParsedOrderService parsedOrderService;
+    private ParsedOrderService parsedOrderService;
+
+    @Autowired
+    private BuyStaticStrategy buyStaticStrategy;
+
+    @Autowired
+    private SellStaticStrategy sellStaticStrategy;
 
     @Value("${configuration.schedule}")
     private Long schedule;
@@ -46,16 +51,17 @@ public class StrategyService {
 
         AbstractStaticStrategy strategy;
         if(operation == Operation.BUY) {
-            strategy = new BuyStaticStrategy(pair, step, spread, plannedProfit);
+            strategy = buyStaticStrategy;
         } else {
-            strategy = new SellStaticStrategy(pair, step, spread, plannedProfit);
+            strategy = sellStaticStrategy;
         }
 
+        strategy.initFields(pair, step, spread, plannedProfit);
         while (true) {
             TickerDTO tickerDTO = parsedOrderService.obtainTicker(pair);
             LOG.info("{}", tickerDTO);
-            strategy.createOrderGrid();
             strategy.setLastPrice(tickerDTO.getLast());
+            strategy.createOrderGrid();
             strategy.checkFirstOrdersDone();
             strategy.checkConverseOrdersDone();
             Thread.sleep(schedule);
