@@ -11,6 +11,7 @@ import java.math.BigDecimal;
 import java.sql.Timestamp;
 
 import com.google.common.base.MoreObjects;
+import org.hibernate.annotations.Type;
 
 @Entity
 @Table(name = "grid")
@@ -37,6 +38,7 @@ public class Grid {
     @Column(name = "price")
     private BigDecimal price;
 
+    @Type(type="date")
     @Column(name = "create_date")
     private Timestamp createDate;
 

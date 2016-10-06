@@ -3,6 +3,7 @@ package com.fidel.bot.jpa.entity;
 import com.fidel.bot.dto.OrderDTO;
 import com.google.common.base.MoreObjects;
 import com.google.common.base.Objects;
+import org.hibernate.annotations.Type;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -39,12 +40,15 @@ public class Order {
     @Column(name = "converse_price")
     private BigDecimal conversePrice;
 
+    @Type(type="date")
     @Column(name = "create_date")
     private Timestamp createDate;
 
+    @Type(type="date")
     @Column(name = "done_date")
     private Timestamp doneDate;
 
+    @Type(type="date")
     @Column(name = "close_date")
     private Timestamp closeDate;
 

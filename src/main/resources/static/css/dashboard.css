@@ -1,0 +1,9 @@
+.drag-and-drop-small-big-icon {
+    background: url("../img/drag_&_drop_small_big.png") no-repeat center;
+    height: 80px;
+}
+
+.clickable
+{
+    cursor: pointer;
+}

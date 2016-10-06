@@ -8,7 +8,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 
 @SpringBootApplication
 @EnableAsync
-@EnableScheduling
+//@EnableScheduling
 public class Application {
 
     private static ApplicationContext applicationContext;
@@ -17,7 +17,7 @@ public class Application {
         applicationContext = SpringApplication.run(Application.class, args);
     }
 
-    void initiateShutdown(int returnCode){
+    public void initiateShutdown(int returnCode){
         SpringApplication.exit(applicationContext, () -> returnCode);
     }
 }

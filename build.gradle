@@ -1,0 +1,129 @@
+buildscript {
+    ext {
+        springBootVersion = '1.4.1.RELEASE'
+    }
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+        classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
+        classpath("io.spring.gradle:dependency-management-plugin:0.5.3.RELEASE")
+        classpath("org.flywaydb:flyway-gradle-plugin:4.0.3")
+    }
+}
+
+plugins {
+    id 'com.craigburke.bower-installer' version '2.4.1'
+}
+
+apply plugin: 'java'
+apply plugin: 'idea'
+apply plugin: 'application'
+apply plugin: 'spring-boot'
+apply plugin: 'io.spring.dependency-management'
+apply plugin: 'org.flywaydb.flyway'
+
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
+mainClassName = 'com.fidel.bot.Application'
+
+repositories {
+    mavenCentral()
+}
+
+dependencyManagement {
+    imports {
+        mavenBom "org.springframework.boot:spring-boot-starter-parent:${springBootVersion}"
+    }
+}
+
+dependencies {
+    compile("org.springframework.boot:spring-boot-starter-web")
+    compile("org.springframework.boot:spring-boot-starter-data-jpa")
+    compile("org.springframework.boot:spring-boot-starter-security")
+    compile("org.flywaydb:flyway-core:4.0.3")
+    compile("commons-io:commons-io:2.4")
+    compile("com.google.guava:guava:18.0")
+    compile("org.modelmapper:modelmapper:0.7.5")
+    compile("com.googlecode.json-simple:json-simple:1.1.1")
+    compile("org.apache.httpcomponents:httpclient:4.5.2")
+    runtime("org.postgresql:postgresql:9.4-1201-jdbc41")
+    /*runtime("com.h2database:h2:1.4.192")*/
+    testCompile("org.springframework.boot:spring-boot-starter-test")
+}
+
+
+task wrapper(type: Wrapper) {
+    gradleVersion = '2.7'
+}
+
+bower {
+    installBase = 'src/main/resources/static/lib'
+
+    dependencies {
+        'jquery'('2.1.x') {
+            source 'dist/*'
+        }
+
+        'jquery-ui'('1.x') {
+            source 'jquery-ui*'
+        }
+
+        'jquery-file-upload'('9.x') {
+            source 'css/jquery.fileupload.css' >> 'css/'
+            source 'js/jquery.fileupload.js' >> 'js/'
+            source 'js/vendor/jquery.ui.widget.js' >> 'js/'
+
+            excludes 'blueimp-tmpl'
+            excludes 'blueimp-load-image'
+            excludes 'blueimp-canvas-to-blob'
+        }
+
+        'jquery.fileDownload'('1.4.2') {
+            source 'src/Scripts/*' >> 'js/'
+        }
+
+        'select2'('3.5.4') {
+            source '*'
+        }
+
+        'bootstrap'('3.3.x') {
+            source 'dist/js/bootstrap*' >> 'js/'
+            source 'dist/css/*' >> 'css/'
+            source 'dist/fonts/**' >> 'fonts/'
+        }
+
+        'underscore'('1.8.x') {
+            source 'underscore*'
+        }
+
+        'backbone'('1.2.x') {
+            source 'backbone*'
+        }
+
+        'marionette'('2.4.x') {
+            source 'lib/backbone.marionette*'
+        }
+
+        'backbone.stickit'('0.9.2') {
+            source 'backbone.stickit.js'
+        }
+
+        'backbone-validation'('0.11.*') {
+            source 'dist/backbone-validation.js'
+            source 'dist/backbone-validation-min.js'
+        }
+
+        'requirejs'() {
+            source 'require.js'
+        }
+
+        'requirejs-text'()
+    }
+
+    additional = [
+            name: 'Bot'
+    ]
+}
+
+assemble.dependsOn(bowerInstall)

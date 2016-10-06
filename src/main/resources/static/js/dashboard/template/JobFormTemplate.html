@@ -1,0 +1,67 @@
+<div class="col-md-5">
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <h3 class="panel-title">New Job</h3>
+        </div>
+        <div class="panel-body">
+            <form class="form-horizontal">
+                <div class="row form-group">
+                    <label for="name" class="col-md-4 control-label">Name</label>
+
+                    <div class="col-md-7">
+                        <input type="text" maxlength="80" class="form-control" id="name" placeholder="Name">
+                        <span class="help-block hidden"></span>
+                        <span class="sr-only">name</span>
+                    </div>
+                </div>
+                <div class="row form-group">
+                    <label for="description" class="col-md-4 control-label">Description</label>
+
+                    <div class="col-md-7">
+                        <input type="text" maxlength="255" class="form-control" id="description" placeholder="Description">
+                        <span class="help-block hidden"></span>
+                        <span class="sr-only">description</span>
+                    </div>
+                </div>
+                <div class="row form-group">
+                    <label for="sourceLanguage" class="col-md-4 control-label">Source Language</label>
+
+                    <div class="col-md-7">
+                        <select class="form-control" id="sourceLanguage"></select>
+                        <span class="help-block hidden"></span>
+                        <span class="sr-only">sourceLanguage</span>
+                    </div>
+                </div>
+                <div class="row form-group">
+                    <label for="targetLanguages" class="col-md-4 control-label">Target Language(s)</label>
+
+                    <div class="col-md-7">
+                        <select multiple class="form-control" id="targetLanguages"></select>
+                        <span class="help-block hidden"></span>
+                        <span class="sr-only">targetLanguage</span>
+                    </div>
+                </div>
+
+                <div class="row form-group">
+                    <label for="sourceFiles" class="col-md-4 control-label">Source File(s)</label>
+
+                    <div class="col-md-7 ">
+                        <div id="sourceFiles">
+                            <div id="dropZone"></div>
+                            <div id="fileCollection" class="col-md-12"></div>
+                        </div>
+                        <span class="help-block hidden"></span>
+                        <span class="sr-only">fileInput</span>
+                    </div>
+                </div>
+
+                <div class="row form-group ">
+                    <div class="col-md-11 text-right">
+                        <div id="cancelBtn" class="btn btn-default">Cancel</div>
+                        <div id="createBtn" class="btn btn-success">Create</div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
