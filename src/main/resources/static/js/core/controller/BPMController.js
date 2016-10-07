@@ -56,6 +56,21 @@ define(
                 }
             },
 
+            grid: function () {
+                var self = this;
+                if (app.request('currentUser').hasAuthorityWithName('Admin')) {
+                    require(['js/grid/controller/GridController'], function (GridController) {
+                        var gridController;
+
+                        gridController = new GridController();
+                        self.showMainRegion(gridController.layout);
+                        gridController.start();
+                    });
+                } else {
+                    app.execute('showNotification', BPMNotification.danger("Access denied!"));
+                }
+            },
+
             showMainRegion: function (view) {
                 this.layout.showChildView('mainRegion', view);
             }

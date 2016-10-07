@@ -12,7 +12,8 @@ define(
             appRoutes: {
                 '': 'resolveMainPage',
                 'dashboard': 'dashboard',
-                'configuration': 'configuration'
+                'configuration': 'configuration',
+                'grid': 'grid'
             }
         });
 

@@ -25,6 +25,10 @@ define(
                     observe: 'authorities',
                     visible: isAdmin
                 },
+                '#grid': {
+                    observe: 'authorities',
+                    visible: isAdmin
+                },
                 '#username': 'username'
             },
             initialize: function () {

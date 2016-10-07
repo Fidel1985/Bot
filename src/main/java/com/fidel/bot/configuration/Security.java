@@ -28,6 +28,7 @@ public class Security extends WebSecurityConfigurerAdapter {
                 .authorizeRequests()
                 .antMatchers("/dashboard/**").hasAuthority("Project Manager")
                 .antMatchers("/configuration/**").hasAuthority("Admin")
+                .antMatchers("/grid/**").hasAuthority("Admin")
                 .antMatchers("/**").authenticated()
                 .and().formLogin()
                 .and().logout().logoutRequestMatcher(new AntPathRequestMatcher("/logout")).logoutSuccessUrl("/login")
