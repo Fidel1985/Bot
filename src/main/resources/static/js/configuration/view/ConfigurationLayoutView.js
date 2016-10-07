@@ -17,7 +17,8 @@ define(
 
             regions: {
                 userConfigurationRegion: '[data-user-configuration-region]',
-                userCollectionRegion: '[data-user-collection-region]'
+                userCollectionRegion: '[data-user-collection-region]',
+                usersTableRegion: '[data-user-table-region]',
             },
             ui: {
                 'showUserFormBtn': '#showUserFormBtn'

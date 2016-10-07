@@ -2,11 +2,13 @@ define(
     [
         'js/app',
         'backbone.marionette',
+        'js/configuration/collection/UserMetadataCollection',
         'js/configuration/view/ConfigurationLayoutView',
+        'js/configuration/view/UsersTableView',
         'js/configuration/collection/UserAuthorityCollection'
     ],
 
-    function (app, Marionette, ConfigurationLayoutView, UserAuthorityCollection) {
+    function (app, Marionette, ConfigurationLayoutView, UsersTableView, UserMetadataCollection, UserAuthorityCollection) {
         'use strict';
 
         return Marionette.Object.extend({
@@ -16,7 +18,9 @@ define(
             },
 
             start: function () {
-                $.when(this.initCollection(new UserAuthorityCollection(), 'userAuthorityCollection'))
+                $.when(
+                        this.initCollection(new UserMetadataCollection(), 'userMetadataCollection'),
+                        this.initCollection(new UserAuthorityCollection(), 'userAuthorityCollection'))
                     .done(this.layout.prepareView());
             },
 
@@ -25,6 +29,10 @@ define(
                     return collection;
                 });
                 return collection.fetch();
+            },
+
+            showRegions: function () {
+                this.layout.showChildView('usersTableRegion', new UsersTableView());
             }
         });
 
