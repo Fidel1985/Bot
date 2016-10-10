@@ -12,6 +12,8 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("configuration/users")
 public class UserController {
@@ -27,5 +29,11 @@ public class UserController {
     @ResponseStatus(HttpStatus.CREATED)
     public BPMUser create(@Validated @RequestBody BPMUser user) {
         return userService.save(user);
+    }
+
+    @RequestMapping(value = "/get", method = RequestMethod.GET)
+    @ResponseStatus(HttpStatus.OK)
+    public List<BPMUser> getAll() {
+        return userService.getAll();
     }
 }

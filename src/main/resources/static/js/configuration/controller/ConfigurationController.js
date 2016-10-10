@@ -2,10 +2,10 @@ define(
     [
         'js/app',
         'backbone.marionette',
-        'js/configuration/collection/UserMetadataCollection',
         'js/configuration/view/ConfigurationLayoutView',
         'js/configuration/view/UsersTableView',
-        'js/configuration/collection/UserAuthorityCollection'
+        'js/configuration/collection/UserAuthorityCollection',
+        'js/configuration/collection/UserMetadataCollection'
     ],
 
     function (app, Marionette, ConfigurationLayoutView, UsersTableView, UserMetadataCollection, UserAuthorityCollection) {
@@ -18,10 +18,15 @@ define(
             },
 
             start: function () {
-                $.when(
-                        this.initCollection(new UserMetadataCollection(), 'userMetadataCollection'),
-                        this.initCollection(new UserAuthorityCollection(), 'userAuthorityCollection'))
-                    .done(this.layout.prepareView());
+                this.init()
+                    //.done(this.layout.prepareView());
+                    .done(this.showRegions.bind(this));
+            },
+
+            init: function () {
+                return $.when(
+                    this.initCollection(new UserMetadataCollection(), 'userMetadataCollection'),
+                    this.initCollection(new UserAuthorityCollection(), 'userAuthorityCollection'));
             },
 
             initCollection: function (collection, handlerName) {

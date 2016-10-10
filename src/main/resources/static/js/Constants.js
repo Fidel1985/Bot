@@ -11,6 +11,7 @@ define([],
                 JOB_TARGET_FILE: 'dashboard/jobs/{jobId}/target',
                 JOB_TARGET_FILE_DOWNLOAD: 'dashboard/jobs/{jobId}/target/{fileId}',
                 USERS: 'configuration/users',
+                ALL_USERS: 'configuration/users/get',
                 LANGUAGES: 'dashboard/languages',
                 AUTHORITIES: 'configuration/authority',
                 CURRENT_USER: 'session/user'

@@ -4,11 +4,12 @@ define(
         'js/app',
         'js/core/model/BPMNotification',
         'js/configuration/view/UserFormView',
+        'js/configuration/view/UsersTableView',
         'js/configuration/model/UserModel',
         'backbone.marionette'
     ],
 
-    function (template, app, BPMNotification, UserFormView, UserModel) {
+    function (template, app, BPMNotification, UserFormView, UsersTableView, UserModel) {
         'use strict';
 
         return Marionette.LayoutView.extend({
@@ -18,7 +19,7 @@ define(
             regions: {
                 userConfigurationRegion: '[data-user-configuration-region]',
                 userCollectionRegion: '[data-user-collection-region]',
-                usersTableRegion: '[data-user-table-region]',
+                usersTableRegion: '[data-user-table-region]'
             },
             ui: {
                 'showUserFormBtn': '#showUserFormBtn'
@@ -39,6 +40,10 @@ define(
         }
 
         function showUserCreateBtn() {
+/*            var usersTableView = new UsersTableView({
+                model: new UserModel()
+            });
+            this.showRegions('usersTableRegion', usersTableView);*/
             this.ui.showUserFormBtn.show();
         }
 

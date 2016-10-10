@@ -10,7 +10,7 @@ define(
         'use strict';
 
         return Backbone.Collection.extend({
-            url: app.constants.URLS.USERS,
+            url: app.constants.URLS.ALL_USERS,
             model: UserModel
         });
 

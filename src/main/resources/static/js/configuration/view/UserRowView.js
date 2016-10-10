@@ -17,7 +17,7 @@ define(
 
            template: _.template(template),
 
-            regions: {
+/*            regions: {
                 jobStatus: '[data-status]',
                 jobDetail: '[data-job-detail]'
             },
@@ -26,12 +26,14 @@ define(
                 'jobRow': '.row',
                 'uploadFile': '.uploadFile',
                 'showDetailBtn': '[data-show-detail]'
-            },
+            },*/
 
             bindings: {
                 '[data-id]': 'id',
-                '[data-name]': 'name',
-                '[data-description]': 'description'
+                '[data-firstName]': 'firstName',
+                '[data-lastName]': 'lastName',
+                '[data-username]': 'username',
+                '[data-email]': 'email'
             },
 
 
